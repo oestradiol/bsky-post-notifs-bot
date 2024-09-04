@@ -1,6 +1,7 @@
-mod peek_users;
+mod on_shutdown;
 
 use environment::WORKSPACE_DIR;
+use on_shutdown::with_graceful_shutdown;
 #[cfg(not(debug_assertions))]
 use repositories::Database;
 use tracing::{event, Level};
@@ -28,6 +29,8 @@ async fn main() {
 
   event!(Level::INFO, "Application starting!");
 
-  peek_users::act().await;
-  // TODO: Add graceful shutdown
+  tokio::spawn(services::listen_for_commands::act());
+  tokio::spawn(services::check_users_for_posts::act());
+
+  with_graceful_shutdown().await;
 }

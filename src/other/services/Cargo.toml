@@ -10,4 +10,11 @@ path = "lib.rs"
 workspace = true
 
 [dependencies]
+repositories = { path = "../repositories" }
+utils = { path = "../utils" }
+types = { path = "../types" }
+bsky = { path = "../bsky" }
 tracing = "^0.1"
+atrium-api = "^0.24"
+tokio = "^1.37"
+chrono = "^0.4"

@@ -1,5 +1,5 @@
 mod get_watched_users;
-use sqlx::types::chrono::NaiveDateTime;
+use chrono::{DateTime, Utc};
 use tokio::sync::RwLock;
 use types::entities::watched_user::Watcher;
 
@@ -19,6 +19,6 @@ pub fn init_watched_users() -> RwLock<BTreeMap<Arc<str>, Data>> {
 }
 
 pub struct Data {
-  pub last_peeked: NaiveDateTime,
+  pub last_notified: DateTime<Utc>,
   pub watchers: Vec<Watcher>,
 }

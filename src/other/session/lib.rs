@@ -4,7 +4,7 @@ use std::{sync::Arc, time::Duration};
 
 use async_once::AsyncOnce;
 use bsky_sdk::BskyAgent;
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::{DateTime, Utc};
 use lazy_static::lazy_static;
 use tracing::{event, Level};
 
@@ -18,12 +18,12 @@ static RETRY_DELAY: u64 = 15;
 
 pub struct Bsky {
   agent: Option<Arc<BskyAgent>>,
-  pub last_action: NaiveDateTime,
+  pub last_action: DateTime<Utc>,
 }
 impl Bsky {
   async fn init() -> RwLock<Self> {
     #[allow(clippy::unwrap_used)] // Constant, should never fail
-    let last_action = DateTime::<Utc>::from_timestamp(0, 0).unwrap().naive_utc();
+    let last_action = DateTime::<Utc>::from_timestamp(0, 0).unwrap();
     let bsky = Self {
       agent: Some(Arc::new(Self::retry_until_get_agent().await)),
       last_action,
@@ -66,6 +66,7 @@ impl Bsky {
     bsky.agent = None;
   }
 
+  #[allow(clippy::missing_panics_doc)]
   pub async fn get_agent() -> Arc<BskyAgent> {
     let bsky = BSKY.get().await.read().await;
     match &bsky.agent {

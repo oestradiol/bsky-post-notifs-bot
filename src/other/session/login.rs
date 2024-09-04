@@ -1,4 +1,3 @@
-use anyhow::Result;
 use bsky_sdk::{
   agent::config::{Config, FileStore},
   api::xrpc::http::StatusCode,

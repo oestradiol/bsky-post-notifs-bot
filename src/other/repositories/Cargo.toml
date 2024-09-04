@@ -10,11 +10,12 @@ path = "lib.rs"
 workspace = true
 
 [dependencies]
+types = { path = "../types" }
+environment = { path = "../environment" }
 lazy_static = "^1.4"
 async_once = "^0.2"
 sqlx = { version = "^0.8", features = ["postgres", "runtime-tokio", "tls-native-tls"] }
-environment = { path = "../environment" }
-types = { path = "../types" }
-anyhow = "^1.0"
-tokio = { version = "^1.37", features = ["rt-multi-thread", "macros"] }
 tracing = "^0.1"
+anyhow = "^1.0"
+chrono = "^0.4"
+tokio = "^1.37"

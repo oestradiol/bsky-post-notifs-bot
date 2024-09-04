@@ -16,4 +16,3 @@ tracing-appender = "^0.2"
 color-eyre = "^0.6"
 environment = { path = "../environment" }
 tokio = { version = "^1.37", features = ["rt-multi-thread", "fs"] }
-http = "^1.1"

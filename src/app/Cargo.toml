@@ -11,23 +11,14 @@ path = "core/main.rs"
 workspace = true
 
 [dependencies]
-tokio = { version = "^1.37", features = ["rt-multi-thread", "macros"] }
-tracing = "^0.1"
-dotenv = "^0.15"
-bsky = { path = "../other/bsky" }
-utils = { path = "../other/utils" }
-types = { path = "../other/types" }
-session = { path = "../other/session" }
 environment = { path = "../other/environment" }
 repositories = { path = "../other/repositories" }
 services = { path = "../other/services" }
-anyhow = "^1.0"
-bsky-sdk = { version = "^0.1", features = ["config-toml"] }
-ipld-core = "^0.4"
-atrium-api = { version = "^0.24", features = ["tokio"] }
-chrono = "^0.4"
-thiserror = "^1.0"
+tracing = "^0.1"
+tokio = { version = "^1.37", features = ["rt-multi-thread", "signal"] }
+dotenv = "^0.15"
 sqlx = { version = "^0.8", features = ["postgres", "runtime-tokio", "tls-native-tls"] }
+utils = { path = "../other/utils" }
 
 [target.'cfg(unix)'.dependencies]
 jemallocator = "^0.5"

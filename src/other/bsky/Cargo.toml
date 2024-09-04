@@ -16,9 +16,6 @@ chrono = "^0.4"
 ipld-core = "^0.4"
 session = { path = "../session" }
 thiserror = "^1.0"
-tokio = { version = "^1.37", features = ["rt-multi-thread", "macros"] }
 tracing = "^0.1"
-types = { path = "../types" }
-anyhow = "^1.0"
-repositories = { path = "../repositories" }
-utils = { path = "../utils" }
+tokio = { version = "^1.37", features = ["rt-multi-thread", "macros"] }
+atrium-xrpc = "^0.11"

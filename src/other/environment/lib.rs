@@ -24,19 +24,6 @@ fn owned_var_opt<T: FromStr>(name: &'static str) -> Option<T> {
     .ok()
 }
 
-/// Useful when your program requires a variable to be defined and cannot provide a
-/// default alternative, but you do not want the parsed result to be leaked/static ref.
-/// E.g.: Any Copy type. Not worth leaking.
-///
-/// The leaking version of this is `var`.
-///
-/// # Panics
-/// When the environment variable is not found or when the parsing fails for T.
-fn owned_var<T: FromStr>(name: &'static str) -> T {
-  owned_var_opt(name)
-    .unwrap_or_else(|| panic!("Couldn't find or parse env variable {name} for given type"))
-}
-
 /// Useful when you want to provide a default value for the environment variable,
 /// but you do not want the parsed result to be leaked or static.
 /// E.g.: Any Copy type. Not worth leaking.
