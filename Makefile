@@ -13,10 +13,13 @@ test:
 	cargo test
 
 lint:
-	cargo clippy --fix
+	cargo clippy --all-targets --all-features --color always
 
-force-lint:
-	cargo clippy --fix --allow-dirty --allow-staged
+lint-fix:
+	cargo clippy --fix --all-targets --all-features --color always
+
+force-lint-fix:
+	cargo clippy --fix --allow-dirty --allow-staged --all-targets --all-features --color always
 
 dev:
 	RUST_SPANTRACE=1 RUST_BACKTRACE=full RUST_LIB_BACKTRACE=1 cargo run
