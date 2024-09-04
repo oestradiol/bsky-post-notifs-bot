@@ -5,7 +5,7 @@ edition = "2021"
 
 [[bin]]
 name = "app"
-path = "main.rs"
+path = "core/main.rs"
 
 [lints]
 workspace = true
@@ -26,9 +26,8 @@ bsky-sdk = { version = "^0.1", features = ["config-toml"] }
 ipld-core = "^0.4"
 atrium-api = { version = "^0.24", features = ["tokio"] }
 chrono = "^0.4"
-rpassword = "^7.3"
 thiserror = "^1.0"
-cron-job = "^0.2"
+sqlx = { version = "^0.8", features = ["postgres", "runtime-tokio", "tls-native-tls"] }
 
 [target.'cfg(unix)'.dependencies]
 jemallocator = "^0.5"

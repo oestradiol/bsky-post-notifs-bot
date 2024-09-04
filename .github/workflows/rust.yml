@@ -16,6 +16,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Lint
-      run: cargo sqlx prepare && make lint
+      run: make lint
     - name: Run tests
-      run: cargo sqlx prepare && make test
+      run: make test

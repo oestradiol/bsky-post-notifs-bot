@@ -17,7 +17,11 @@ where
 ///
 /// The leaking version of this is `var_opt`.
 fn owned_var_opt<T: FromStr>(name: &'static str) -> Option<T> {
-  std::env::var(name).ok()?.parse::<T>().ok()
+  std::env::var(name)
+    .ok()
+    .filter(|s| s.len() > 0)?
+    .parse::<T>()
+    .ok()
 }
 
 /// Useful when your program requires a variable to be defined and cannot provide a
