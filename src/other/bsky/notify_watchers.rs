@@ -14,10 +14,7 @@ pub async fn r#try(user: Arc<str>) {
     let watchers = &watcher.get(&user)?.watchers;
     let mut set = JoinSet::new();
     for u in watchers {
-      let Watcher {
-        did,
-        watch_replies: also_watches_replies,
-      } = u;
+      let Watcher { did, watch_replies } = u;
       set.spawn(notify_watcher(did.clone(), user.clone()));
     }
     drop(watcher);
@@ -29,7 +26,7 @@ pub async fn r#try(user: Arc<str>) {
             Level::ERROR,
             "Failed to Join notify_watchers_for_user: {:?}",
             e
-          )
+          );
         })
         .map(|res| res.map_err(|e| event!(Level::WARN, "Failed to notify watcher: {:?}", e)));
     }

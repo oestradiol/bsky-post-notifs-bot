@@ -1,4 +1,4 @@
-use std::{ops::Deref, sync::Arc, time::Duration};
+use std::{sync::Arc, time::Duration};
 
 use atrium_api::{
   types::{string::AtIdentifier, Unknown::Object},
@@ -6,11 +6,13 @@ use atrium_api::{
 };
 use bsky_sdk::api::app::bsky::feed::get_author_feed;
 use chrono::NaiveDateTime;
+use get_author_feed::Error as FeedError;
 use ipld_core::ipld::Ipld;
 use session::Bsky;
 use thiserror::Error as ThisError;
 use tokio::time::sleep;
 use tracing::{event, Level};
+use xrpc::error::{Error as XrpcError, XrpcError as XrpcErrorResponse, XrpcErrorKind};
 
 use super::minimum_delay;
 
@@ -35,7 +37,7 @@ pub async fn act(user: Arc<str>) -> Result<NaiveDateTime, Error> {
   let last_post = lastest_feed.feed.first().ok_or(Error::ZeroPosts)?;
   match &last_post.post.record {
     Object(map) => {
-      let created_at = map.get("createdAt").map(|v| v.deref());
+      let created_at = map.get("createdAt").map(|v| &**v);
       match created_at {
         Some(Ipld::String(time_str)) => chrono::NaiveDateTime::parse_from_str(time_str, TIME_MASK)
           .map_err(|_| {
@@ -119,9 +121,6 @@ async fn try_get_feed(
     .get_author_feed(params)
     .await;
 
-  use get_author_feed::Error as FeedError;
-  use xrpc::error::{XrpcError as XrpcErrorResponse, XrpcErrorKind};
-  use xrpc::Error as XrpcError;
   let err = match res {
     Ok(output) => return Ok(output.data),
     Err(XrpcError::XrpcResponse(XrpcErrorResponse::<FeedError> {
@@ -137,11 +136,10 @@ async fn try_get_feed(
         Some(Error::Api)
       }
     }
-    Err(XrpcError::HttpRequest(_)) => Some(Error::Api),
-    Err(XrpcError::HttpClient(_)) => Some(Error::Api),
-    Err(XrpcError::SerdeJson(_))
-    | Err(XrpcError::SerdeHtmlForm(_))
-    | Err(XrpcError::UnexpectedResponseType) => Some(Error::BskyBug),
+    Err(XrpcError::HttpRequest(_) | XrpcError::HttpClient(_)) => Some(Error::Api),
+    Err(
+      XrpcError::SerdeJson(_) | XrpcError::SerdeHtmlForm(_) | XrpcError::UnexpectedResponseType,
+    ) => Some(Error::BskyBug),
   };
   Err(err)
 }

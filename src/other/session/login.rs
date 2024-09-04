@@ -2,10 +2,10 @@ use anyhow::Result;
 use bsky_sdk::{
   agent::config::{Config, FileStore},
   api::xrpc::http::StatusCode,
+  error::GenericXrpcError,
   BskyAgent, Error as BskyError,
 };
 use environment::{BOT_PASSWORD, BOT_USERNAME, WORKSPACE_DIR};
-use std::ops::Deref;
 use tracing::{event, Level};
 
 pub async fn act() -> Result<BskyAgent, BskyError> {
@@ -42,23 +42,8 @@ async fn try_load_from_config(file_store: &FileStore) -> Result<BskyAgent, BskyE
 async fn handle_bsky_error(file_store: &FileStore, e: BskyError) -> Result<BskyAgent, BskyError> {
   match e {
     BskyError::Xrpc(e) => {
-      // 💀💀
-      // https://github.com/sugyan/atrium/issues/220
-      pub enum GenericXrpcError {
-        Response {
-          status: StatusCode,
-          error: Option<String>,
-        },
-        Other(String),
-      }
-
-      let error: &GenericXrpcError;
-      #[allow(unsafe_code)]
-      unsafe {
-        error = std::mem::transmute(e.deref());
-      }
-      if let GenericXrpcError::Response { status, .. } = error {
-        if *status == StatusCode::UNAUTHORIZED || *status == StatusCode::FORBIDDEN {
+      if let GenericXrpcError::Response { status, .. } = *e {
+        if status == StatusCode::UNAUTHORIZED || status == StatusCode::FORBIDDEN {
           return do_auth(file_store).await;
         }
       }

@@ -3,10 +3,10 @@ use std::{collections::BTreeMap, sync::Arc};
 use sqlx::types::chrono::{DateTime, Utc};
 use types::entities::watched_user::{WatchedUser, Watcher, Watchers};
 
-use super::WatchedUserInfo;
+use super::Data;
 
-pub async fn act() -> BTreeMap<Arc<str>, WatchedUserInfo> {
-  let vec = get_from_db().await;
+pub fn act() -> BTreeMap<Arc<str>, Data> {
+  let vec = get_from_db();
 
   // TODO: Get last post and use it
   let naive = DateTime::<Utc>::from_timestamp(0, 0).unwrap().naive_utc();
@@ -16,7 +16,7 @@ pub async fn act() -> BTreeMap<Arc<str>, WatchedUserInfo> {
     .map(|u| {
       (
         Arc::from(u.did),
-        WatchedUserInfo {
+        Data {
           last_peeked: naive,
           watchers: u.watchers.0,
         },
@@ -25,7 +25,7 @@ pub async fn act() -> BTreeMap<Arc<str>, WatchedUserInfo> {
     .collect()
 }
 
-async fn get_from_db() -> Vec<WatchedUser> {
+fn get_from_db() -> Vec<WatchedUser> {
   // TODO
   let me: Box<str> = Box::from("elynn.bsky.social");
   vec![

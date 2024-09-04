@@ -31,6 +31,7 @@ impl Bsky {
     RwLock::new(bsky)
   }
 
+  #[allow(clippy::cognitive_complexity)]
   async fn retry_until_get_agent() -> BskyAgent {
     event!(Level::INFO, "Logging in...");
 
@@ -46,9 +47,10 @@ impl Bsky {
       }
 
       retries -= 1;
-      if retries < 0 {
-        panic!("Failed to login after {MAXIMUM_RETRIES} retries. Exiting...");
-      }
+      assert!(
+        retries >= 0,
+        "Failed to login after {MAXIMUM_RETRIES} retries. Exiting..."
+      );
       event!(
         Level::WARN,
         "Trying again in {RETRY_DELAY} seconds. (Retries left: {})",

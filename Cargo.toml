@@ -33,7 +33,7 @@ refining_impl_trait = "deny"
 unused = "warn"
 
 ### Overrides
-unsafe_code = { level = "deny", priority = 1 }
+unsafe_code = { level = "forbid", priority = 1 }
 unused_imports = { level = "deny", priority = 1 }
 
 

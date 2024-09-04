@@ -9,15 +9,16 @@ use async_once::AsyncOnce;
 use lazy_static::lazy_static;
 
 lazy_static! {
-  pub static ref WATCHED_USERS: AsyncOnce<RwLock<BTreeMap<Arc<str>, WatchedUserInfo>>> =
-    AsyncOnce::new(init_watched_users());
+  pub static ref WATCHED_USERS: AsyncOnce<RwLock<BTreeMap<Arc<str>, Data>>> =
+    AsyncOnce::new(async { init_watched_users() });
 }
 
-pub async fn init_watched_users() -> RwLock<BTreeMap<Arc<str>, WatchedUserInfo>> {
-  RwLock::new(get_watched_users::act().await)
+#[must_use]
+pub fn init_watched_users() -> RwLock<BTreeMap<Arc<str>, Data>> {
+  RwLock::new(get_watched_users::act())
 }
 
-pub struct WatchedUserInfo {
+pub struct Data {
   pub last_peeked: NaiveDateTime,
   pub watchers: Vec<Watcher>,
 }

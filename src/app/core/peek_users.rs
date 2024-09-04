@@ -52,7 +52,7 @@ pub async fn peek_user(user: Arc<str>, mut last_peeked: NaiveDateTime) {
         event!(Level::WARN, "Error fetching last post time for {user}.");
         if failures_in_a_row >= MAX_FAILURES {
           event!(Level::ERROR, "Maximum retries reached! Aborting...");
-          handle_user_unwatched::act(user.clone(), false).await;
+          handle_user_unwatched::act(&user, false);
           break;
         }
 
@@ -76,7 +76,7 @@ pub async fn peek_user(user: Arc<str>, mut last_peeked: NaiveDateTime) {
           Level::INFO,
           "{user} has opted out of the watchlist. Will stop watching."
         );
-        handle_user_unwatched::act(user.clone(), true).await;
+        handle_user_unwatched::act(&user, true);
         break;
       }
       Err(get_last_post_time::Error::ZeroPosts) => {
