@@ -1,0 +1,20 @@
+[package]
+name = "session"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+environment = { path = "../environment" }
+lazy_static = "^1.4"
+async_once = "^0.2"
+tracing = "^0.1"
+anyhow = "^1.0"
+tokio = { version = "^1.37", features = ["rt-multi-thread", "macros"] }
+bsky-sdk = { version = "^0.1", features = ["config-toml"] }
+chrono = "^0.4"

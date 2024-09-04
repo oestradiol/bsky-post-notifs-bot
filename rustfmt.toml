@@ -1,0 +1,14 @@
+# Rustfmt configuration file
+
+# Set the maximum line width
+max_width = 100
+
+# Use 4 spaces for indentation
+tab_spaces = 2
+
+# Use the default set of rules
+# Uncomment the following line to enable custom rules
+# custom_rules = true
+
+brace_style = "PreferSameLine"
+enum_discrim_align_threshold = 30

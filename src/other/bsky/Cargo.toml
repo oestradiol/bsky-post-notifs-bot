@@ -1,0 +1,24 @@
+[package]
+name = "bsky"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+atrium-api = { version = "^0.24", features = ["tokio"] }
+bsky-sdk = { version = "^0.1", features = ["config-toml"] }
+chrono = "^0.4"
+ipld-core = "^0.4"
+session = { path = "../session" }
+thiserror = "^1.0"
+tokio = { version = "^1.37", features = ["rt-multi-thread", "macros"] }
+tracing = "^0.1"
+types = { path = "../types" }
+anyhow = "^1.0"
+repositories = { path = "../repositories" }
+utils = { path = "../utils" }

@@ -1,0 +1,34 @@
+[package]
+name = "app"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "app"
+path = "main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+tokio = { version = "^1.37", features = ["rt-multi-thread", "macros"] }
+tracing = "^0.1"
+dotenv = "^0.15"
+bsky = { path = "../other/bsky" }
+utils = { path = "../other/utils" }
+types = { path = "../other/types" }
+session = { path = "../other/session" }
+environment = { path = "../other/environment" }
+repositories = { path = "../other/repositories" }
+services = { path = "../other/services" }
+anyhow = "^1.0"
+bsky-sdk = { version = "^0.1", features = ["config-toml"] }
+ipld-core = "^0.4"
+atrium-api = { version = "^0.24", features = ["tokio"] }
+chrono = "^0.4"
+rpassword = "^7.3"
+thiserror = "^1.0"
+cron-job = "^0.2"
+
+[target.'cfg(unix)'.dependencies]
+jemallocator = "^0.5"

@@ -1,0 +1,8 @@
+{
+  "css.customData": [".vscode/tailwind.json"],
+  "editor.tabSize": 2,
+  "rust-analyzer.cargo.extraEnv": {
+      "RUSTFLAGS": ""
+  },
+  "makefile.configureOnOpen": false,
+}

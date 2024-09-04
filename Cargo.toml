@@ -1,0 +1,54 @@
+[workspace]
+resolver = "2"
+members = [
+  "src/app",
+  "src/other/repositories",
+  "src/other/environment",
+  "src/other/services",
+  "src/other/session",
+  "src/other/utils",
+  "src/other/types",
+]
+
+
+
+
+# Lint groups for tracking:
+# https://doc.rust-lang.org/rustc/lints/groups.html
+# https://rust-lang.github.io/rust-clippy/master/index.html
+
+[workspace.lints.rust]
+### Lint Groups
+future_incompatible = "deny"
+keyword_idents = "deny"
+rust_2018_idioms = "deny"
+rust_2018_compatibility = "deny"
+rust_2021_compatibility = "deny"
+rust_2024_compatibility = "deny"
+let_underscore = "deny"
+nonstandard_style = "deny"
+refining_impl_trait = "deny"
+# Also, don't use allow(unused):
+# https://www.reddit.com/r/rust/comments/1enkpxh/pro_tip_use_expectunused_upcoming_181_release/
+unused = "warn"
+
+### Overrides
+unsafe_code = { level = "deny", priority = 1 }
+unused_imports = { level = "deny", priority = 1 }
+
+
+
+
+[workspace.lints.clippy]
+### Lint Groups
+complexity = "deny"
+correctness = "deny"
+nursery = "deny"
+pedantic = "deny"
+perf = "deny"
+style = "deny"
+suspicious = "deny"
+
+### Overrides
+missing_errors_doc = { level = "warn", priority = 1 }
+missing_panics_doc = { level = "warn", priority = 1 }
