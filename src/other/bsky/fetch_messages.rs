@@ -1,4 +1,4 @@
-use std::{num::NonZeroU64, sync::Arc};
+use std::num::NonZeroU64;
 
 use super::Bsky;
 use atrium_api::{
@@ -21,7 +21,7 @@ pub enum Error {}
 /// Will return any unhandled request errors.
 #[allow(clippy::missing_panics_doc)]
 pub async fn act(
-  convo_id: Arc<str>,
+  convo_id: String,
   count: NonZeroU64,
 ) -> Result<Vec<Union<get_messages::OutputMessagesItem>>, super::Error<Error>> {
   #[allow(clippy::unwrap_used)] // Hard coded
@@ -42,7 +42,7 @@ pub async fn act(
       limit,
     }
     .act()
-    .await?; // TODO: Handle instead
+    .await?; // TODO: Handle instead, maybe simply ignore error and try again since cursor here? But limit attempts.
     all_unread_messages.extend(messages);
     curr_cursor = cursor;
   }
@@ -52,7 +52,7 @@ pub async fn act(
 
 struct Request {
   curr_cursor: Option<String>,
-  convo_id: Arc<str>,
+  convo_id: String,
   limit: LimitedNonZeroU8<100u8>,
 }
 impl BskyReq for Request {
@@ -66,7 +66,7 @@ impl BskyReq for Request {
       data: get_messages::ParametersData {
         cursor: self.curr_cursor,
         limit: Some(self.limit),
-        convo_id: self.convo_id.to_string(),
+        convo_id: self.convo_id,
       },
       extra_data: Ipld::Null,
     }

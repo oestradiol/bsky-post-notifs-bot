@@ -10,7 +10,7 @@ pub async fn r#try(user_did: Arc<str>) {
   let watchers = watched_users.get(&user_did).map(|w| &w.watchers);
   if let Some(watchers) = watchers {
     for u in watchers {
-      #[allow(clippy::unused_variables)] // TODO: Actually implement this feature
+      #[allow(unused_variables)] // TODO: Actually implement this feature
       let Watcher { did, watch_replies } = u;
       tokio::spawn(notify_watcher(did.clone(), user_did.clone()));
     }

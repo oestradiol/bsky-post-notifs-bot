@@ -16,7 +16,7 @@ use chrono::{DateTime, Utc};
 use lazy_static::lazy_static;
 use std::{sync::Arc, time::Duration};
 use thiserror::Error as ThisError;
-use tokio::{sync::RwLock, sync::RwLockWriteGuard, time::sleep};
+use tokio::{sync::RwLock, time::sleep};
 use tracing::{event, Level};
 
 lazy_static! {
@@ -84,6 +84,7 @@ impl Bsky {
         drop(bsky);
         let mut bsky = BSKY.get().await.write().await;
         bsky.agent = Some(Arc::new(Self::retry_until_get_agent().await));
+        #[allow(clippy::unwrap_used)] // Defined immediately above
         bsky.agent.as_ref().unwrap().clone()
       }
     }
@@ -118,7 +119,9 @@ trait BskyReq {
   where
     Self: Sized,
   {
-    minimum_delay().await;
+    // Commented out until I get rate limited at least once
+    // Unlikely to ever happen given the ping
+    // minimum_delay().await;
 
     let mut failed_attempts = 0;
 
@@ -192,19 +195,19 @@ trait BskyReq {
   }
 }
 
-static MINIMUM_DELAY: u64 = 10; // 10 Milliseconds
+// static MINIMUM_DELAY: u64 = 10; // 10 Milliseconds
 
-async fn minimum_delay() {
-  let mut context: RwLockWriteGuard<'_, Bsky> = BSKY.get().await.write().await;
-  let current = chrono::offset::Utc::now();
-  #[allow(clippy::unwrap_used)] // Guaranteed not to overflow
-  let elapsed: u64 = current
-    .signed_duration_since(context.last_action)
-    .num_milliseconds()
-    .try_into()
-    .unwrap();
-  if elapsed < MINIMUM_DELAY {
-    sleep(Duration::from_millis(MINIMUM_DELAY - elapsed)).await;
-  }
-  context.last_action = current;
-}
+// async fn minimum_delay() {
+//   let mut context: RwLockWriteGuard<'_, Bsky> = BSKY.get().await.write().await;
+//   let current = chrono::offset::Utc::now();
+//   #[allow(clippy::unwrap_used)] // Guaranteed not to overflow
+//   let elapsed: u64 = current
+//     .signed_duration_since(context.last_action)
+//     .num_milliseconds()
+//     .try_into()
+//     .unwrap();
+//   if elapsed < MINIMUM_DELAY {
+//     sleep(Duration::from_millis(MINIMUM_DELAY - elapsed)).await;
+//   }
+//   context.last_action = current;
+// }

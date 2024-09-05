@@ -1,5 +1,5 @@
 use tracing_appender::non_blocking::WorkerGuard;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, Layer};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter, Layer};
 
 use environment::{LOG_DIRECTORY, STDOUT_LOG_SEVERITY};
 
@@ -15,6 +15,14 @@ pub async fn init_logging() -> (WorkerGuard, WorkerGuard) {
     .await
     .unwrap_or_else(|e| panic!("Failed to create canonical directory: {e}. Path: {canonical:?}"));
 
+  #[allow(clippy::unwrap_used)]
+  let filter = EnvFilter::builder()
+    .with_default_directive((*STDOUT_LOG_SEVERITY).into())
+    .from_env()
+    .unwrap_or_else(|e| panic!("Invalid directives for tracing subscriber: {e}."))
+    .add_directive("hyper_util::client=info".parse().unwrap()) // Hyper client is too verbose
+    .add_directive("reqwest::connect=info".parse().unwrap()); // Reqwest client is too verbose
+
   let file_appender = tracing_appender::rolling::daily(canonical, "PostNotifs.log");
   let (non_blocking_file, guard0) = tracing_appender::non_blocking(file_appender);
   let (non_blocking_stdout, guard1) = tracing_appender::non_blocking(std::io::stdout());
@@ -24,9 +32,7 @@ pub async fn init_logging() -> (WorkerGuard, WorkerGuard) {
     .pretty()
     .with_writer(non_blocking_stdout);
 
-  let layered = stdout_log
-    .and_then(file_log)
-    .with_filter(*STDOUT_LOG_SEVERITY);
+  let layered = stdout_log.and_then(file_log).with_filter(filter);
 
   tracing_subscriber::registry().with(layered).init();
 

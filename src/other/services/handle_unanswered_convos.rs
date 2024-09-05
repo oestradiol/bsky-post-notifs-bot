@@ -1,4 +1,4 @@
-use std::{num::NonZeroU64, sync::Arc};
+use std::num::NonZeroU64;
 
 use atrium_api::{
   chat::bsky::convo::{
@@ -10,57 +10,61 @@ use atrium_api::{
   },
   types::Object,
 };
-use bsky::{fetch_messages, send_message, Error};
+use bsky::{fetch_messages, read_convo, send_message, Error};
 use tracing::{event, Level};
 use utils::handle_union;
 
 use crate::commands::{issue_command, parse_command};
 
-pub async fn act(dms: Vec<ConvoView>) {
-  for Object {
-    data: ConvoViewData {
-      id,
-      last_message,
-      unread_count,
-      ..
-    },
-    ..
-  } in dms
-  {
-    let id = Arc::from(id);
-    let res = if unread_count == 1 {
-      if let Some(refs) = last_message.and_then(handle_union) {
-        match refs {
-          ConvoViewLastMessageRefs::MessageView(view) => handle_view(view, id).await,
-          ConvoViewLastMessageRefs::DeletedMessageView(_) => {
-            event!(Level::DEBUG, "Message has been unsent. Ignoring.");
-          }
-        }
-        Ok(())
-      } else {
-        #[allow(clippy::unwrap_used)] // NonZeroU64, should never fail since 1
-        fetch_and_handle_unread(id, 1.try_into().unwrap()).await
-      }
-    } else {
-      #[allow(clippy::unwrap_used)]
-      // NonZeroU64, this method should never be called with less than 1
-      let as_non_zero = TryInto::<u64>::try_into(unread_count)
-        .unwrap()
-        .try_into()
-        .unwrap();
-      fetch_and_handle_unread(id, as_non_zero).await
-    };
-    let _ = res.map_err(|e| {
-      event!(
-        Level::WARN,
-        "Error while fetching messages to handle: {e:?}"
-      )
-    });
+pub fn act(dms: Vec<ConvoView>) {
+  for Object { data, .. } in dms {
+    tokio::spawn(handle_unanswered_convo(data));
   }
 }
 
+async fn handle_unanswered_convo(convo: ConvoViewData) -> Result<(), Error<fetch_messages::Error>> {
+  let ConvoViewData {
+    id,
+    last_message,
+    unread_count,
+    ..
+  } = convo;
+
+  if unread_count == 1 {
+    if let Some(refs) = last_message.and_then(handle_union) {
+      match refs {
+        ConvoViewLastMessageRefs::MessageView(view) => {
+          handle_view(view, id.clone()).await;
+        }
+        ConvoViewLastMessageRefs::DeletedMessageView(_) => {
+          event!(Level::DEBUG, "Message has been unsent. Ignoring.");
+        }
+      }
+    } else {
+      #[allow(clippy::unwrap_used)] // NonZeroU64, should never fail since 1
+      fetch_and_handle_unread(id.clone(), 1.try_into().unwrap()).await?;
+    }
+  } else {
+    #[allow(clippy::unwrap_used)]
+    // NonZeroU64, this method should never be called with less than 1
+    let as_non_zero = TryInto::<u64>::try_into(unread_count)
+      .unwrap()
+      .try_into()
+      .unwrap();
+    fetch_and_handle_unread(id.clone(), as_non_zero).await?;
+  };
+
+  drop(
+    read_convo::act(id)
+      .await
+      .map_err(|_| event!(Level::WARN, "Failed to mark convo as read.")),
+  );
+
+  Ok(())
+}
+
 async fn fetch_and_handle_unread(
-  convo_id: Arc<str>,
+  convo_id: String,
   unread_count: NonZeroU64,
 ) -> Result<(), Error<fetch_messages::Error>> {
   let unread_messages: Vec<_> = fetch_messages::act(convo_id.clone(), unread_count)
@@ -74,14 +78,14 @@ async fn fetch_and_handle_unread(
         handle_view(view, convo_id.clone()).await
       }
       OutputMessagesItem::ChatBskyConvoDefsDeletedMessageView(_) => {
-        event!(Level::DEBUG, "Message has been unsent. Ignoring.");
+        event!(Level::DEBUG, "Message has been unsent. Ignoring.")
       }
     }
   }
   Ok(())
 }
 
-async fn handle_view(view: Box<Object<MessageViewData>>, convo_id: Arc<str>) {
+async fn handle_view(view: Box<Object<MessageViewData>>, convo_id: String) {
   let Object {
     data:
       MessageViewData {

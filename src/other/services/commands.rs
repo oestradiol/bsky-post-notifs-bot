@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::collections::HashSet;
 
 use atrium_api::{
   app::bsky::richtext::facet::{MainData, MainFeaturesItem, MentionData},
@@ -21,29 +21,32 @@ pub enum Command {
 }
 
 static AVAILABLE_COMMANDS: &str = "Available commands:
-  - !watch (one or more DIDs or user mentions)
-  - !unwatch (one or more DIDs or user mentions)
+  - !watch @user_1 @user_2 (...)
+  - !unwatch @user_1 @user_2 (...)
   - !list_watching
   - !help";
 
-pub async fn issue_command(command: Command, convo_id: Arc<str>, sender_did: Did) {
+#[allow(unused_variables)] // TODO: Implement this command.
+pub async fn issue_command(command: Command, convo_id: String, sender_did: Did) {
   drop(
     match command {
       Command::Help => send_message::act(convo_id, AVAILABLE_COMMANDS.to_string()),
-      Command::Watch(user_handles) => {
+      Command::Watch(user_dids) => {
+        let user_dids = user_dids.into_iter().collect::<HashSet<_>>();
         // TODO: Actually watch for user.
 
-        let message = user_handles
+        let message = user_dids // TODO: Fetch user handles from user_dids.
           .into_iter()
           .fold("Ok! Now watching users:".to_string(), |acc, handle| {
             format!("{}\n- {}", acc, handle.as_ref())
           });
         send_message::act(convo_id, message)
       }
-      Command::Unwatch(user_handles) => {
+      Command::Unwatch(user_dids) => {
+        let user_dids = user_dids.into_iter().collect::<HashSet<_>>();
         // TODO: Actually unwatch for user.
 
-        let message = user_handles
+        let message = user_dids // TODO: Fetch user handles from user_dids.
           .into_iter()
           .fold("Ok! Unwatched users:".to_string(), |acc, handle| {
             format!("{acc}\n- {}", handle.as_ref())
@@ -51,7 +54,7 @@ pub async fn issue_command(command: Command, convo_id: Arc<str>, sender_did: Did
         send_message::act(convo_id, message)
       }
       Command::ListWatching => {
-        // TODO: Actually fetch list of watched users.
+        // TODO: Actually fetch list of watched users. Make sure to fetch handles!
         let user_handles = vec!["blabla", "blabla", "blabla"];
 
         let message = user_handles.into_iter().fold(

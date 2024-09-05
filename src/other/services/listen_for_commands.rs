@@ -1,20 +1,24 @@
-use std::time::Duration;
+use std::{cmp, time::Duration};
 
 use super::handle_unanswered_convos;
 use bsky::get_unread_convos;
+use chrono::Utc;
 use tokio::time::sleep;
 use tracing::{event, Level};
 use utils::handle_api_failure;
 
-static WATCH_DELAY: u64 = 5; // 5 Seconds
+static WATCH_DELAY: i64 = 2; // 2 Seconds
 
 #[allow(clippy::cognitive_complexity)]
+#[allow(clippy::missing_panics_doc)]
 pub async fn act() {
   event!(Level::INFO, "Now listening to user commands.");
 
   let mut failures_in_a_row = 0;
-
   loop {
+    event!(Level::DEBUG, "Checking for new dms...");
+
+    let before_task = Utc::now();
     match get_unread_convos::act().await {
       Err(bsky::Error::Api) => {
         event!(Level::WARN, "Error fetching last dms.");
@@ -31,13 +35,20 @@ pub async fn act() {
         unreachable!() // This request has no custom errors
       }
       Ok(dms) => {
-        if !dms.is_empty() {
-          handle_unanswered_convos::act(dms).await;
-        }
+        handle_unanswered_convos::act(dms);
       }
     }
-
     failures_in_a_row = 0;
-    sleep(Duration::from_secs(WATCH_DELAY)).await;
+    let after_task = Utc::now();
+
+    let task_delta = after_task
+      .signed_duration_since(before_task)
+      .num_milliseconds();
+
+    #[allow(clippy::unwrap_used)] // cmp::max checked so unwrap is safe
+    let time_left = cmp::max(WATCH_DELAY * 1000 - task_delta, 0)
+      .try_into()
+      .unwrap();
+    sleep(Duration::from_millis(time_left)).await;
   }
 }

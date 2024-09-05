@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use super::Bsky;
 use atrium_api::{
   agent::bluesky::AtprotoServiceType,
@@ -28,7 +26,7 @@ pub enum Error {
 ///
 /// Will return any unhandled request errors.
 pub async fn act(
-  convo_id: Arc<str>,
+  convo_id: String,
   message: String,
 ) -> Result<MessageViewData, super::Error<Error>> {
   let RichText { facets, text } = RichText::new_with_detect_facets(message)
@@ -43,7 +41,7 @@ pub async fn act(
 }
 
 struct Request {
-  convo_id: Arc<str>,
+  convo_id: String,
   message: MessageInputData,
 }
 impl BskyReq for Request {
@@ -55,7 +53,7 @@ impl BskyReq for Request {
   fn get_params(self) -> Self::ReqParams {
     send_message::Input {
       data: send_message::InputData {
-        convo_id: self.convo_id.to_string(),
+        convo_id: self.convo_id,
         message: MessageInput {
           data: self.message,
           extra_data: Ipld::Null,
