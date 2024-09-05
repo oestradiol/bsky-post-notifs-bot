@@ -18,7 +18,11 @@ use crate::commands::{issue_command, parse_command};
 
 pub fn act(dms: Vec<ConvoView>) {
   for Object { data, .. } in dms {
-    tokio::spawn(handle_unanswered_convo(data));
+    tokio::spawn(async {
+      handle_unanswered_convo(data)
+        .await
+        .map_err(|e| event!(Level::WARN, "Failed to handle unanswered convo. Error: {e}"))
+    });
   }
 }
 
@@ -46,7 +50,7 @@ async fn handle_unanswered_convo(convo: ConvoViewData) -> Result<(), Error<fetch
     }
   } else {
     #[allow(clippy::unwrap_used)]
-    // NonZeroU64, this method should never be called with less than 1
+    // NonZeroU64, handle_unanswered_convo should never be called with less than 1
     let as_non_zero = TryInto::<u64>::try_into(unread_count)
       .unwrap()
       .try_into()
@@ -86,6 +90,7 @@ async fn fetch_and_handle_unread(
 }
 
 async fn handle_view(view: Box<Object<MessageViewData>>, convo_id: String) {
+  // TODO: After implementing command logic, bail error.
   let Object {
     data:
       MessageViewData {
@@ -101,18 +106,21 @@ async fn handle_view(view: Box<Object<MessageViewData>>, convo_id: String) {
     ..
   } = *view;
   let command = parse_command(&text, facets);
-  if let Some(command) = command {
+  let message = if let Some(command) = command {
     event!(Level::DEBUG, "Issuing command: {command:?}");
-    issue_command(command, convo_id, did).await;
+    issue_command(command, did).await
   } else {
-    let message =
-      "If you're trying to issue a command, please use the command prefix: `!<command>`. \
-       You can get a list of available commands with `!help`."
-        .to_string();
-    drop(
-      send_message::act(convo_id, message)
-        .await
-        .map_err(|_| event!(Level::WARN, "Failed to send 'confused user' message.")),
-    );
-  }
+    "If you're trying to issue a command, please use the command prefix:
+      - `!<command>`
+
+      You can get a list of available commands with:
+      - `!help`"
+      .to_string()
+  };
+  drop(send_message::act(convo_id, message).await.map_err(|e| {
+    event!(
+      Level::WARN,
+      "Failed to send command message. Command completed successfully, however. Error: {e}"
+    )
+  }));
 }

@@ -1,6 +1,7 @@
 use std::{cmp, sync::Arc, time::Duration};
 
 use super::notify_watchers;
+use atrium_api::types::string::AtIdentifier;
 use chrono::{DateTime, Utc};
 use repositories::watched_user::WATCHED_USERS;
 
@@ -15,27 +16,29 @@ pub async fn act() {
   let watched_lock = WATCHED_USERS.get().await.read().await;
   let watched: Vec<_> = watched_lock
     .iter()
-    .map(|kv| (kv.0.clone(), kv.1.last_notified))
+    .map(|kv| (kv.0.clone(), kv.1.last_notified_watchers))
     .collect();
   drop(watched_lock);
 
   event!(Level::INFO, "Now watching all users' posts.");
 
-  for (user_did, last_peeked) in watched {
-    tokio::spawn(peek_user(user_did, last_peeked));
+  for (user_did, last_notified_watchers) in watched {
+    tokio::spawn(watch_user(user_did, last_notified_watchers));
   }
 }
 
 static WATCH_DELAY: i64 = 15; // 15 Seconds
 #[allow(clippy::missing_panics_doc)] // False positive
-pub async fn peek_user(user_did: Arc<str>, mut last_notified: DateTime<Utc>) {
+pub async fn watch_user(user_did: Arc<str>, mut last_notified_watchers: DateTime<Utc>) {
   let mut failures_in_a_row = 0;
 
   loop {
     event!(Level::DEBUG, "Checking for new posts from {user_did}...");
 
     let before_task = Utc::now();
-    match get_last_post_time::act(user_did.clone()).await {
+    // TODO: Maybe create a wrapper to enforce this safety?
+    #[allow(clippy::unwrap_used)] // It should be guaranteed that every user is a valid DID
+    match get_last_post_time::act(user_did.parse::<AtIdentifier>().unwrap()).await {
       Err(bsky::Error::Api) => {
         event!(Level::WARN, "Error fetching last post time for {user_did}.");
         if handle_api_failure(&mut failures_in_a_row).await {
@@ -62,8 +65,8 @@ pub async fn peek_user(user_did: Arc<str>, mut last_notified: DateTime<Utc>) {
       }
       Ok(output) => {
         event!(Level::DEBUG, "{user_did}'s last post at: {:?}.", output);
-        if output > last_notified {
-          last_notified = output;
+        if output > last_notified_watchers {
+          last_notified_watchers = output;
           tokio::spawn(notify_watchers::r#try(user_did.clone()));
         }
       }

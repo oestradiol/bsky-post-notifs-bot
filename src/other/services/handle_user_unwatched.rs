@@ -12,17 +12,17 @@ pub async fn act(user_did: Arc<str>, is_opt_out: bool) {
   }
 
   match watched {
+    None => {
+      event!(
+        Level::WARN,
+        "Weird... {user_did} was not found in WATCHED_USERS when it should have been."
+      );
+    }
     #[allow(unused_variables)] // TODO: Delete from DB and notify watchers.
     Some(watched_user::Data { watchers, .. }) => {
       event!(
         Level::INFO,
         "Now notifying watchers of {user_did} that they have been unwatched."
-      );
-    }
-    None => {
-      event!(
-        Level::WARN,
-        "Weird... {user_did} was not found in WATCHED_USERS when it should have been."
       );
     }
   }

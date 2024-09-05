@@ -29,7 +29,7 @@ pub async fn act(
     vec![100.try_into().unwrap(); (count.get() / 100) as usize];
   let remainder = (count.get() % 100) as u8;
   if remainder > 0 {
-    #[allow(clippy::unwrap_used)] // NonZeroU64, should never fail since remainder [1, 100]
+    #[allow(clippy::unwrap_used)] // NonZeroU64, should never fail since remainder [1, 100)
     batches.push(remainder.try_into().unwrap());
   }
 
@@ -42,7 +42,7 @@ pub async fn act(
       limit,
     }
     .act()
-    .await?; // TODO: Handle instead, maybe simply ignore error and try again since cursor here? But limit attempts.
+    .await?; // TODO: Maybe handle instead, maybe simply ignore error and try again since cursor here? But limit attempts.
     all_unread_messages.extend(messages);
     curr_cursor = cursor;
   }
@@ -89,7 +89,9 @@ impl BskyReq for Request {
       .await
   }
 
-  fn handle_xrpc_custom_error(_: Self::ReqError) -> Option<super::Error<Error>> {
-    unreachable!() // This request has no custom errors
+  fn handle_xrpc_custom_error(e: Self::ReqError) -> Option<super::Error<Error>> {
+    match e {
+       // Unreachable: This request has no custom errors
+    }
   }
 }

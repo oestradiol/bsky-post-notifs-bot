@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use super::Bsky;
 use atrium_api::{
   types::{string::AtIdentifier, Object, Unknown},
@@ -24,8 +22,8 @@ pub enum Error {
 /// # Errors
 ///
 /// Will return any unhandled request errors.
-pub async fn act(user_did: Arc<str>) -> Result<DateTime<Utc>, super::Error<Error>> {
-  let latest_feed = Request { user_did }.act().await?;
+pub async fn act(actor: AtIdentifier) -> Result<DateTime<Utc>, super::Error<Error>> {
+  let latest_feed = Request { actor }.act().await?;
   let last_post = latest_feed
     .feed
     .first()
@@ -64,7 +62,7 @@ pub async fn act(user_did: Arc<str>) -> Result<DateTime<Utc>, super::Error<Error
 }
 
 struct Request {
-  user_did: Arc<str>,
+  actor: AtIdentifier,
 }
 impl BskyReq for Request {
   type ReqParams = get_author_feed::Parameters;
@@ -75,8 +73,7 @@ impl BskyReq for Request {
   fn get_params(self) -> Self::ReqParams {
     Self::ReqParams {
       data: get_author_feed::ParametersData {
-        #[allow(clippy::unwrap_used)] // It should be guaranteed that every user is a valid DID
-        actor: self.user_did.parse::<AtIdentifier>().unwrap(),
+        actor: self.actor,
         cursor: None,
         filter: None,
         #[allow(clippy::unwrap_used)] // Safe because it's a constant

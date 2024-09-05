@@ -54,7 +54,9 @@ impl BskyReq for Request {
       .await
   }
 
-  fn handle_xrpc_custom_error(_: Self::ReqError) -> Option<super::Error<Error>> {
-    unreachable!() // This request has no custom errors
+  fn handle_xrpc_custom_error(e: Self::ReqError) -> Option<super::Error<Error>> {
+    match e {
+       // Unreachable: This request has no custom errors
+    }
   }
 }

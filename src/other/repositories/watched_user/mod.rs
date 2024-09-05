@@ -14,11 +14,11 @@ lazy_static! {
 }
 
 #[allow(clippy::unused_async)] // TODO: Remove this once the function is actually used
-pub async fn init_watched_users() -> RwLock<BTreeMap<Arc<str>, Data>> {
+async fn init_watched_users() -> RwLock<BTreeMap<Arc<str>, Data>> {
   RwLock::new(get_watched_users::act().await)
 }
 
 pub struct Data {
-  pub last_notified: DateTime<Utc>,
+  pub last_notified_watchers: DateTime<Utc>,
   pub watchers: Vec<Watcher>,
 }

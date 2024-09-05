@@ -31,7 +31,7 @@ pub async fn act(
 ) -> Result<MessageViewData, super::Error<Error>> {
   let RichText { facets, text } = RichText::new_with_detect_facets(message)
     .await
-    .map_err(handle_rich_text_error)?;
+    .map_err(handle_rich_text_error)?; // TODO: Try disable RichText and send raw message to see how that goes
   let message = MessageInputData {
     facets,
     text,
@@ -80,8 +80,10 @@ impl BskyReq for Request {
       .await
   }
 
-  fn handle_xrpc_custom_error(_: Self::ReqError) -> Option<super::Error<Error>> {
-    unreachable!() // This request has no custom errors
+  fn handle_xrpc_custom_error(e: Self::ReqError) -> Option<super::Error<Error>> {
+    match e {
+       // Unreachable: This request has no custom errors
+    }
   }
 }
 

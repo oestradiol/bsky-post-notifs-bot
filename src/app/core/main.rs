@@ -30,7 +30,7 @@ async fn main() {
   event!(Level::INFO, "Application starting!");
 
   tokio::spawn(services::listen_for_commands::act());
-  tokio::spawn(services::check_users_for_posts::act());
+  tokio::spawn(services::watch_users_for_posts::act());
 
   with_graceful_shutdown().await;
 }

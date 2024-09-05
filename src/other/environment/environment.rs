@@ -8,9 +8,8 @@ use crate::{owned_var_or, try_leak, var, var_or_else};
 lazy_static! {
   pub static ref STDOUT_LOG_SEVERITY: LevelFilter =
     owned_var_or("STDOUT_LOG_SEVERITY", LevelFilter::WARN);
-  pub static ref LOG_DIRECTORY: &'static Path = var_or_else("LOG_DIRECTORY", || PathBuf::from(
-    "/var/log/LunarParfait/conecta"
-  ));
+  pub static ref LOG_DIRECTORY: &'static Path =
+    var_or_else("LOG_DIRECTORY", || PathBuf::from("/var/log/post_watcher"));
   pub static ref BOT_USERNAME: &'static str = var::<String, _>("BOT_USERNAME");
   pub static ref BOT_PASSWORD: &'static str = var::<String, _>("BOT_PASSWORD");
   pub static ref DATABASE_URL: &'static str = var::<String, _>("DATABASE_URL");

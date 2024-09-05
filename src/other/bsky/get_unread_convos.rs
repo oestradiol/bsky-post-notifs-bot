@@ -21,7 +21,8 @@ pub async fn act() -> Result<Vec<ConvoView>, super::Error<Error>> {
   let mut curr_cursor = None;
   let mut all_unread_convos = Vec::new();
   loop {
-    let list_convos::OutputData { cursor, convos } = Request { curr_cursor }.act().await?; // TODO: Handle instead
+    // TODO: Maybe handle instead, maybe simply ignore error and try again since cursor here? But limit attempts.
+    let list_convos::OutputData { cursor, convos } = Request { curr_cursor }.act().await?;
     let total_count = convos.len();
 
     let unread_convos: Vec<_> = convos.into_iter().filter(|c| c.unread_count > 0).collect();
@@ -75,7 +76,9 @@ impl BskyReq for Request {
       .await
   }
 
-  fn handle_xrpc_custom_error(_: Self::ReqError) -> Option<super::Error<Error>> {
-    unreachable!() // This request has no custom errors
+  fn handle_xrpc_custom_error(e: Self::ReqError) -> Option<super::Error<Error>> {
+    match e {
+       // Unreachable: This request has no custom errors
+    }
   }
 }

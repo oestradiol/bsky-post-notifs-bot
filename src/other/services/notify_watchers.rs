@@ -15,12 +15,11 @@ pub async fn r#try(user_did: Arc<str>) {
       tokio::spawn(notify_watcher(did.clone(), user_did.clone()));
     }
   }
-  drop(watched_users);
 }
 
 #[allow(clippy::unused_async)] // TODO: Remove this once the function is actually used
 async fn notify_watcher(watcher: Box<str>, user_did: Arc<str>) {
-  // TODO: Check if should really use Box here
+  // TODO: Check if should really use Box here. Use Arc, if possible.
   event!(
     Level::DEBUG,
     "Successfully notified {user_did}'s watcher: {watcher}."

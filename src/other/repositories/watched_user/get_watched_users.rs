@@ -10,7 +10,7 @@ pub async fn act() -> BTreeMap<Arc<str>, Data> {
   let vec = get_from_db();
 
   // TODO: Get last post and use it
-  let last_notified = DateTime::<Utc>::from_timestamp(0, 0).unwrap();
+  let last_notified_watchers = DateTime::<Utc>::from_timestamp(0, 0).unwrap();
 
   vec
     .into_iter()
@@ -18,7 +18,7 @@ pub async fn act() -> BTreeMap<Arc<str>, Data> {
       (
         Arc::from(u.did),
         Data {
-          last_notified,
+          last_notified_watchers,
           watchers: u.watchers.0,
         },
       )

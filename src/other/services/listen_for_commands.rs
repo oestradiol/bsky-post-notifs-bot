@@ -31,8 +31,10 @@ pub async fn act() {
         event!(Level::ERROR, "Stopping listening to dms...");
         break;
       }
-      Err(bsky::Error::Other(_)) => {
-        unreachable!() // This request has no custom errors
+      Err(bsky::Error::Other(e)) => {
+        match e {
+           // Unreachable: This request has no custom errors
+        }
       }
       Ok(dms) => {
         handle_unanswered_convos::act(dms);
