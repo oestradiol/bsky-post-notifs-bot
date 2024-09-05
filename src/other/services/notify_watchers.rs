@@ -1,43 +1,28 @@
 use std::sync::Arc;
 
 use repositories::watched_user::WATCHED_USERS;
-use tokio::task::JoinSet;
 use tracing::{event, Level};
 use types::entities::watched_user::Watcher;
 
-pub async fn r#try(user: Arc<str>) {
-  let fut = async {
-    let watcher = WATCHED_USERS.get().await.read().await;
-    let watchers = &watcher.get(&user)?.watchers;
-    let mut set = JoinSet::new();
+pub async fn r#try(user_did: Arc<str>) {
+  event!(Level::INFO, "Now notifying watchers of {user_did}.");
+  let watched_users = WATCHED_USERS.get().await.read().await;
+  let watchers = watched_users.get(&user_did).map(|w| &w.watchers);
+  if let Some(watchers) = watchers {
     for u in watchers {
+      #[allow(clippy::unused_variables)] // TODO: Actually implement this feature
       let Watcher { did, watch_replies } = u;
-      set.spawn(notify_watcher(did.clone(), user.clone()));
+      tokio::spawn(notify_watcher(did.clone(), user_did.clone()));
     }
-    drop(watcher);
-
-    while let Some(res) = set.join_next().await {
-      let _ = res.map_err(|e| {
-        event!(
-          Level::ERROR,
-          "Failed to Join notify_watchers_for_user: {:?}",
-          e
-        );
-      });
-    }
-
-    Some(())
-  };
-
-  event!(Level::INFO, "Now notifying watchers of {user}.");
-  let _ = fut.await;
+  }
+  drop(watched_users);
 }
 
-#[allow(clippy::unused_async)]
-async fn notify_watcher(watcher: Box<str>, user: Arc<str>) {
+#[allow(clippy::unused_async)] // TODO: Remove this once the function is actually used
+async fn notify_watcher(watcher: Box<str>, user_did: Arc<str>) {
+  // TODO: Check if should really use Box here
   event!(
     Level::DEBUG,
-    "Successfully notified {user}'s watcher: {watcher}."
+    "Successfully notified {user_did}'s watcher: {watcher}."
   );
-  // TODO; Should handle error here!
 }

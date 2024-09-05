@@ -1,8 +1,8 @@
+use super::Bsky;
 use atrium_api::{
   agent::bluesky::AtprotoServiceType, chat::bsky::convo::update_read, types::Object, xrpc,
 };
 use ipld_core::ipld::Ipld;
-use session::Bsky;
 use thiserror::Error as ThisError;
 use xrpc::error::Error as XrpcError;
 

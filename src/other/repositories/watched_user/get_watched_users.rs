@@ -5,7 +5,8 @@ use types::entities::watched_user::{WatchedUser, Watcher, Watchers};
 
 use super::Data;
 
-pub fn act() -> BTreeMap<Arc<str>, Data> {
+#[allow(clippy::unused_async)] // TODO: Remove this once the function is actually used
+pub async fn act() -> BTreeMap<Arc<str>, Data> {
   let vec = get_from_db();
 
   // TODO: Get last post and use it

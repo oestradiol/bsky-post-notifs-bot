@@ -10,12 +10,12 @@ use lazy_static::lazy_static;
 
 lazy_static! {
   pub static ref WATCHED_USERS: AsyncOnce<RwLock<BTreeMap<Arc<str>, Data>>> =
-    AsyncOnce::new(async { init_watched_users() });
+    AsyncOnce::new(init_watched_users());
 }
 
-#[must_use]
-pub fn init_watched_users() -> RwLock<BTreeMap<Arc<str>, Data>> {
-  RwLock::new(get_watched_users::act())
+#[allow(clippy::unused_async)] // TODO: Remove this once the function is actually used
+pub async fn init_watched_users() -> RwLock<BTreeMap<Arc<str>, Data>> {
+  RwLock::new(get_watched_users::act().await)
 }
 
 pub struct Data {

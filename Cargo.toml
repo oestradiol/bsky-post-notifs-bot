@@ -2,12 +2,12 @@
 resolver = "2"
 members = [
   "src/app",
-  "src/other/repositories",
+  "src/other/bsky",
   "src/other/environment",
+  "src/other/repositories",
   "src/other/services",
-  "src/other/session",
-  "src/other/utils",
   "src/other/types",
+  "src/other/utils",
 ]
 
 
@@ -16,6 +16,8 @@ members = [
 # Lint groups for tracking:
 # https://doc.rust-lang.org/rustc/lints/groups.html
 # https://rust-lang.github.io/rust-clippy/master/index.html
+# Also, don't use allow() when this comes out:
+# https://www.reddit.com/r/rust/comments/1enkpxh/pro_tip_use_expectunused_upcoming_181_release/
 
 [workspace.lints.rust]
 ### Lint Groups
@@ -28,8 +30,6 @@ rust_2024_compatibility = "deny"
 let_underscore = "deny"
 nonstandard_style = "deny"
 refining_impl_trait = "deny"
-# Also, don't use allow(unused):
-# https://www.reddit.com/r/rust/comments/1enkpxh/pro_tip_use_expectunused_upcoming_181_release/
 unused = "warn"
 
 ### Overrides

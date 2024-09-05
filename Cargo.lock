@@ -212,12 +212,14 @@ dependencies = [
 name = "bsky"
 version = "0.1.0"
 dependencies = [
+ "async_once",
  "atrium-api",
  "atrium-xrpc",
  "bsky-sdk",
  "chrono",
+ "environment",
  "ipld-core",
- "session",
+ "lazy_static",
  "thiserror",
  "tokio",
  "tracing",
@@ -1734,19 +1736,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "session"
-version = "0.1.0"
-dependencies = [
- "async_once",
- "bsky-sdk",
- "chrono",
- "environment",
- "lazy_static",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "sha1"
 version = "0.10.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2466,6 +2455,7 @@ dependencies = [
 name = "utils"
 version = "0.1.0"
 dependencies = [
+ "atrium-api",
  "color-eyre",
  "environment",
  "tokio",

@@ -1,3 +1,4 @@
+use super::Bsky;
 use atrium_api::{
   agent::bluesky::AtprotoServiceType,
   chat::bsky::convo::{defs::ConvoView, list_convos},
@@ -5,7 +6,6 @@ use atrium_api::{
   xrpc,
 };
 use ipld_core::ipld::Ipld;
-use session::Bsky;
 use thiserror::Error as ThisError;
 use xrpc::error::Error as XrpcError;
 
@@ -21,7 +21,7 @@ pub async fn act() -> Result<Vec<ConvoView>, super::Error<Error>> {
   let mut curr_cursor = None;
   let mut all_unread_convos = Vec::new();
   loop {
-    let list_convos::OutputData { cursor, convos } = Request { curr_cursor }.act().await?; // TODO: Maybe partially handle and work with the rest?
+    let list_convos::OutputData { cursor, convos } = Request { curr_cursor }.act().await?; // TODO: Handle instead
     let total_count = convos.len();
 
     let unread_convos: Vec<_> = convos.into_iter().filter(|c| c.unread_count > 0).collect();

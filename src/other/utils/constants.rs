@@ -1,4 +1,4 @@
-// The bot will retry in incrementing intervals of 1s, up to INCREMENTS_LIMIT, for a maximum of MINUTES_LIMIT..
+// The bot will retry in incrementing intervals of 1s, up to INCREMENTS_LIMIT, for a maximum of MINUTES_LIMIT.
 pub static INCREMENTS_LIMIT: u64 = 60; // 60 Seconds
 static MINUTES_LIMIT: u64 = 30; // 30 Minutes
 pub static MAX_FAILURES: u64 = {

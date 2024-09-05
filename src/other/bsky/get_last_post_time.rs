@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use super::Bsky;
 use atrium_api::{
   types::{string::AtIdentifier, Object, Unknown},
   xrpc::error::Error as XrpcError,
@@ -7,7 +8,6 @@ use atrium_api::{
 use bsky_sdk::api::app::bsky::feed::get_author_feed;
 use chrono::{DateTime, Utc};
 use ipld_core::ipld::Ipld;
-use session::Bsky;
 use thiserror::Error as ThisError;
 use tracing::{event, Level};
 
@@ -24,8 +24,8 @@ pub enum Error {
 /// # Errors
 ///
 /// Will return any unhandled request errors.
-pub async fn act(user: Arc<str>) -> Result<DateTime<Utc>, super::Error<Error>> {
-  let latest_feed = Request { user }.act().await?;
+pub async fn act(user_did: Arc<str>) -> Result<DateTime<Utc>, super::Error<Error>> {
+  let latest_feed = Request { user_did }.act().await?;
   let last_post = latest_feed
     .feed
     .first()
@@ -64,7 +64,7 @@ pub async fn act(user: Arc<str>) -> Result<DateTime<Utc>, super::Error<Error>> {
 }
 
 struct Request {
-  user: Arc<str>,
+  user_did: Arc<str>,
 }
 impl BskyReq for Request {
   type ReqParams = get_author_feed::Parameters;
@@ -75,8 +75,8 @@ impl BskyReq for Request {
   fn get_params(self) -> Self::ReqParams {
     Self::ReqParams {
       data: get_author_feed::ParametersData {
-        #[allow(clippy::unwrap_used)] // It should be guaranteed that every user is a valid AtIdentifier, a DID, even.
-        actor: self.user.parse::<AtIdentifier>().unwrap(),
+        #[allow(clippy::unwrap_used)] // It should be guaranteed that every user is a valid DID
+        actor: self.user_did.parse::<AtIdentifier>().unwrap(),
         cursor: None,
         filter: None,
         #[allow(clippy::unwrap_used)] // Safe because it's a constant
