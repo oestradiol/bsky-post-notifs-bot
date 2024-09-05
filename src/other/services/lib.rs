@@ -1,6 +1,13 @@
 pub(crate) mod commands;
+pub(crate) mod fetch_watched_by;
+pub mod handle_pending_messages;
 pub(crate) mod handle_unanswered_convos;
 pub(crate) mod handle_user_unwatched;
 pub mod listen_for_commands;
 pub(crate) mod notify_watchers;
+pub(crate) mod pending_messages;
+pub(crate) mod resolve_dids_and_handles;
+pub(crate) mod resolve_handles;
+pub(crate) mod unwatch_users;
+pub(crate) mod watch_new_users;
 pub mod watch_users_for_posts;

@@ -7,7 +7,7 @@ use tokio::time::sleep;
 use tracing::{event, Level};
 use utils::handle_api_failure;
 
-static WATCH_DELAY: i64 = 2; // 2 Seconds
+pub static WATCH_DELAY: i64 = 2; // 2 Seconds
 
 #[allow(clippy::cognitive_complexity)]
 #[allow(clippy::missing_panics_doc)]
@@ -21,7 +21,7 @@ pub async fn act() {
     let before_task = Utc::now();
     match get_unread_convos::act().await {
       Err(bsky::Error::Api) => {
-        event!(Level::WARN, "Error fetching last dms.");
+        event!(Level::WARN, "(Notice) Error fetching last dms.");
         if handle_api_failure(&mut failures_in_a_row).await {
           break;
         }
@@ -37,7 +37,9 @@ pub async fn act() {
         }
       }
       Ok(dms) => {
-        handle_unanswered_convos::act(dms);
+        // Awaits to handle this batch first, or else concurrency
+        // issues might happen where the same convo is handled twice
+        handle_unanswered_convos::act(dms).await;
       }
     }
     failures_in_a_row = 0;

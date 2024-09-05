@@ -1749,9 +1749,11 @@ dependencies = [
 name = "services"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "atrium-api",
  "bsky",
  "chrono",
+ "lazy_static",
  "repositories",
  "tokio",
  "tracing",

@@ -1,5 +1,6 @@
 pub mod fetch_messages;
 pub mod get_last_post_time;
+pub mod get_profiles;
 pub mod get_unread_convos;
 mod login;
 pub mod read_convo;
@@ -27,24 +28,27 @@ static RETRY_DELAY: u64 = 15;
 
 pub struct Bsky {
   agent: Option<Arc<BskyAgent>>,
+  agent_id: Option<Arc<str>>,
   pub last_action: DateTime<Utc>,
 }
 impl Bsky {
   async fn init() -> RwLock<Self> {
     #[allow(clippy::unwrap_used)] // Constant, should never fail
     let last_action = DateTime::<Utc>::from_timestamp(0, 0).unwrap();
+    let (agent, did) = Self::retry_until_get_agent().await;
     let bsky = Self {
-      agent: Some(Arc::new(Self::retry_until_get_agent().await)),
+      agent: Some(Arc::new(agent)),
+      agent_id: Some(did),
       last_action,
     };
     RwLock::new(bsky)
   }
 
   #[allow(clippy::cognitive_complexity)]
-  async fn retry_until_get_agent() -> BskyAgent {
+  async fn retry_until_get_agent() -> (BskyAgent, Arc<str>) {
     event!(Level::INFO, "Logging in...");
 
-    let agent: BskyAgent;
+    let agent;
     let mut retries = MAXIMUM_RETRIES;
     loop {
       match login::act().await {
@@ -52,7 +56,7 @@ impl Bsky {
           agent = res;
           break;
         }
-        Err(e) => event!(Level::WARN, "Failed to login: {:?}", e),
+        Err(e) => event!(Level::WARN, "(Notice) Failed to login: {:?}", e),
       }
 
       retries -= 1;
@@ -61,7 +65,7 @@ impl Bsky {
         "Failed to login after {MAXIMUM_RETRIES} retries. Exiting..."
       );
       event!(
-        Level::WARN,
+        Level::INFO,
         "Trying again in {RETRY_DELAY} seconds. (Retries left: {})",
         retries
       );
@@ -73,6 +77,7 @@ impl Bsky {
   pub async fn invalidate_agent() {
     let mut bsky = BSKY.get().await.write().await;
     bsky.agent = None;
+    bsky.agent_id = None;
   }
 
   #[allow(clippy::missing_panics_doc)]
@@ -83,9 +88,35 @@ impl Bsky {
       None => {
         drop(bsky);
         let mut bsky = BSKY.get().await.write().await;
-        bsky.agent = Some(Arc::new(Self::retry_until_get_agent().await));
+        let (agent, did) = Self::retry_until_get_agent().await;
+        bsky.agent = Some(Arc::new(agent));
+        bsky.agent_id = Some(did);
         #[allow(clippy::unwrap_used)] // Defined immediately above
         bsky.agent.as_ref().unwrap().clone()
+      }
+    }
+  }
+
+  #[allow(clippy::missing_panics_doc)]
+  pub async fn get_agent_did() -> Arc<str> {
+    let bsky = BSKY.get().await.read().await;
+    match &bsky.agent_id {
+      Some(did) => did.clone(),
+      None => {
+        if bsky.agent.is_some() {
+          event!(
+            Level::WARN,
+            "FIXME: Agent ID not found, but agent is present!"
+          );
+        }
+
+        drop(bsky);
+        let mut bsky = BSKY.get().await.write().await;
+        let (agent, did) = Self::retry_until_get_agent().await;
+        bsky.agent = Some(Arc::new(agent));
+        bsky.agent_id = Some(did);
+        #[allow(clippy::unwrap_used)] // Defined immediately above
+        bsky.agent_id.as_ref().unwrap().clone()
       }
     }
   }
@@ -162,31 +193,43 @@ trait BskyReq {
         } else {
           event!(
             Level::WARN,
-            "Failed to issue request, API Error. Status Code: {status}. Error: {error:?}."
+            "(Notice) Failed to issue request, API Error. Status Code: {status}. Error: {error:?}."
           );
           Some(Error::Api)
         }
       }
       Err(XrpcError::HttpRequest(e)) => {
-        event!(Level::WARN, "Failed to issue request, API Error: {e}");
+        event!(
+          Level::WARN,
+          "(Notice) Failed to issue request, API Error: {e}"
+        );
         Some(Error::Api)
       }
       Err(XrpcError::HttpClient(e)) => {
-        event!(Level::WARN, "Failed to issue request, API Error: {e}");
+        event!(
+          Level::WARN,
+          "(Notice) Failed to issue request, API Error: {e}"
+        );
         Some(Error::Api)
       }
       Err(XrpcError::SerdeJson(e)) => {
-        event!(Level::WARN, "Failed to issue request, Bsky Error: {e}");
+        event!(
+          Level::WARN,
+          "(Notice) Failed to issue request, Bsky Error: {e}"
+        );
         Some(Error::BskyBug)
       }
       Err(XrpcError::SerdeHtmlForm(e)) => {
-        event!(Level::WARN, "Failed to issue request, Bsky Error: {e}");
+        event!(
+          Level::WARN,
+          "(Notice) Failed to issue request, Bsky Error: {e}"
+        );
         Some(Error::BskyBug)
       }
       Err(XrpcError::UnexpectedResponseType) => {
         event!(
           Level::WARN,
-          "Failed to issue request, Bsky Error: Unexpected Response Type"
+          "(Notice) Failed to issue request, Bsky Error: Unexpected Response Type"
         );
         Some(Error::BskyBug)
       }

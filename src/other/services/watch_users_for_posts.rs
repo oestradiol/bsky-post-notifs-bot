@@ -33,14 +33,28 @@ pub async fn watch_user(user_did: Arc<str>, mut last_notified_watchers: DateTime
   let mut failures_in_a_row = 0;
 
   loop {
+    if WATCHED_USERS
+      .get()
+      .await
+      .read()
+      .await
+      .get(&user_did)
+      .is_none()
+    {
+      event!(Level::INFO, "User {user_did} is no longer being watched.");
+      break;
+    }
+
     event!(Level::DEBUG, "Checking for new posts from {user_did}...");
 
     let before_task = Utc::now();
-    // TODO: Maybe create a wrapper to enforce this safety?
-    #[allow(clippy::unwrap_used)] // It should be guaranteed that every user is a valid DID
+    #[allow(clippy::unwrap_used)] // Guaranteed that every user is a valid DID
     match get_last_post_time::act(user_did.parse::<AtIdentifier>().unwrap()).await {
       Err(bsky::Error::Api) => {
-        event!(Level::WARN, "Error fetching last post time for {user_did}.");
+        event!(
+          Level::WARN,
+          "(Notice) Error fetching last post time for {user_did}."
+        );
         if handle_api_failure(&mut failures_in_a_row).await {
           tokio::spawn(handle_user_unwatched::act(user_did.clone(), false));
           break;

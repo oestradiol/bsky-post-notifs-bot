@@ -1,32 +1,33 @@
 use std::num::NonZeroU64;
 
+use anyhow::anyhow;
 use atrium_api::{
   chat::bsky::convo::{
-    defs::{
-      ConvoView, ConvoViewData, ConvoViewLastMessageRefs, MessageViewData, MessageViewSender,
-      MessageViewSenderData,
-    },
+    defs::{ConvoView, ConvoViewData, ConvoViewLastMessageRefs},
     get_messages::OutputMessagesItem,
   },
   types::Object,
 };
-use bsky::{fetch_messages, read_convo, send_message, Error};
+use bsky::{fetch_messages, read_convo, Error};
+use tokio::task::JoinSet;
 use tracing::{event, Level};
 use utils::handle_union;
 
-use crate::commands::{issue_command, parse_command};
+use crate::pending_messages::add_pending;
 
-pub fn act(dms: Vec<ConvoView>) {
+pub async fn act(dms: Vec<ConvoView>) {
+  let mut set = JoinSet::new();
   for Object { data, .. } in dms {
-    tokio::spawn(async {
+    set.spawn(async {
       handle_unanswered_convo(data)
         .await
-        .map_err(|e| event!(Level::WARN, "Failed to handle unanswered convo. Error: {e}"))
+        .map_err(|e| event!(Level::WARN, "(Notice) Failed to handle unanswered convo. Will try again on next iteration. Error: {e}"))
     });
   }
+  drop(set.join_all().await);
 }
 
-async fn handle_unanswered_convo(convo: ConvoViewData) -> Result<(), Error<fetch_messages::Error>> {
+async fn handle_unanswered_convo(convo: ConvoViewData) -> Result<(), Error<anyhow::Error>> {
   let ConvoViewData {
     id,
     last_message,
@@ -38,7 +39,8 @@ async fn handle_unanswered_convo(convo: ConvoViewData) -> Result<(), Error<fetch
     if let Some(refs) = last_message.and_then(handle_union) {
       match refs {
         ConvoViewLastMessageRefs::MessageView(view) => {
-          handle_view(view, id.clone()).await;
+          let Object { data, .. } = *view;
+          add_pending(id.clone(), data).await;
         }
         ConvoViewLastMessageRefs::DeletedMessageView(_) => {
           event!(Level::DEBUG, "Message has been unsent. Ignoring.");
@@ -58,10 +60,17 @@ async fn handle_unanswered_convo(convo: ConvoViewData) -> Result<(), Error<fetch
     fetch_and_handle_unread(id.clone(), as_non_zero).await?;
   };
 
+  // Unlikely to happen unless their API is failing (server overload?), but still possible
+  let log = "\
+(Notice) Failed to mark convo as read. \
+Command will be added again, but likely will be ignored by HashSet. \
+There exists, however, a small chance that it will be handled twice. \
+This possibly will cause the user to receive a duplicate response.";
+
   drop(
     read_convo::act(id)
       .await
-      .map_err(|_| event!(Level::WARN, "Failed to mark convo as read.")),
+      .map_err(|_| event!(Level::WARN, log)),
   );
 
   Ok(())
@@ -70,57 +79,23 @@ async fn handle_unanswered_convo(convo: ConvoViewData) -> Result<(), Error<fetch
 async fn fetch_and_handle_unread(
   convo_id: String,
   unread_count: NonZeroU64,
-) -> Result<(), Error<fetch_messages::Error>> {
+) -> Result<(), Error<anyhow::Error>> {
   let unread_messages: Vec<_> = fetch_messages::act(convo_id.clone(), unread_count)
-    .await?
+    .await
+    .map_err(|e| anyhow!(e))?
     .into_iter()
     .filter_map(handle_union)
     .collect();
   for message in unread_messages {
     match message {
       OutputMessagesItem::ChatBskyConvoDefsMessageView(view) => {
-        handle_view(view, convo_id.clone()).await
+        let Object { data, .. } = *view;
+        add_pending(convo_id.clone(), data).await;
       }
       OutputMessagesItem::ChatBskyConvoDefsDeletedMessageView(_) => {
-        event!(Level::DEBUG, "Message has been unsent. Ignoring.")
+        event!(Level::DEBUG, "Message has been unsent. Ignoring.");
       }
     }
   }
   Ok(())
-}
-
-async fn handle_view(view: Box<Object<MessageViewData>>, convo_id: String) {
-  // TODO: After implementing command logic, bail error.
-  let Object {
-    data:
-      MessageViewData {
-        facets,
-        text,
-        sender:
-          MessageViewSender {
-            data: MessageViewSenderData { did },
-            ..
-          },
-        ..
-      },
-    ..
-  } = *view;
-  let command = parse_command(&text, facets);
-  let message = if let Some(command) = command {
-    event!(Level::DEBUG, "Issuing command: {command:?}");
-    issue_command(command, did).await
-  } else {
-    "If you're trying to issue a command, please use the command prefix:
-      - `!<command>`
-
-      You can get a list of available commands with:
-      - `!help`"
-      .to_string()
-  };
-  drop(send_message::act(convo_id, message).await.map_err(|e| {
-    event!(
-      Level::WARN,
-      "Failed to send command message. Command completed successfully, however. Error: {e}"
-    )
-  }));
 }

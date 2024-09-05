@@ -1,7 +1,7 @@
 use std::{collections::BTreeMap, sync::Arc};
 
 use chrono::{DateTime, Utc};
-use types::entities::watched_user::{WatchedUser, Watcher, Watchers};
+use types::entities::watched_user::WatchedUser;
 
 use super::Data;
 
@@ -19,37 +19,14 @@ pub async fn act() -> BTreeMap<Arc<str>, Data> {
         Arc::from(u.did),
         Data {
           last_notified_watchers,
-          watchers: u.watchers.0,
+          watchers: u.watchers.0.into_iter().collect(),
         },
       )
     })
     .collect()
 }
 
-fn get_from_db() -> Vec<WatchedUser> {
+const fn get_from_db() -> Vec<WatchedUser> {
   // TODO
-  let me: Box<str> = Box::from("elynn.bsky.social");
-  vec![
-    WatchedUser {
-      did: me.clone(),
-      watchers: Watchers(vec![Watcher {
-        did: me.clone(),
-        watch_replies: true,
-      }]),
-    },
-    WatchedUser {
-      did: Box::from("logemi.xyz"),
-      watchers: Watchers(vec![Watcher {
-        did: me.clone(),
-        watch_replies: true,
-      }]),
-    },
-    WatchedUser {
-      did: Box::from("felina.fish"),
-      watchers: Watchers(vec![Watcher {
-        did: me,
-        watch_replies: true,
-      }]),
-    },
-  ]
+  vec![]
 }

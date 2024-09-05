@@ -6,9 +6,14 @@ use types::entities::watched_user::Watcher;
 
 pub async fn r#try(user_did: Arc<str>) {
   event!(Level::INFO, "Now notifying watchers of {user_did}.");
-  let watched_users = WATCHED_USERS.get().await.read().await;
-  let watchers = watched_users.get(&user_did).map(|w| &w.watchers);
-  if let Some(watchers) = watchers {
+  if let Some(watchers) = WATCHED_USERS
+    .get()
+    .await
+    .read()
+    .await
+    .get(&user_did)
+    .map(|w| &w.watchers)
+  {
     for u in watchers {
       #[allow(unused_variables)] // TODO: Actually implement this feature
       let Watcher { did, watch_replies } = u;

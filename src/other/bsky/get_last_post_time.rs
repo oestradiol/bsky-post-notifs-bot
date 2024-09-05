@@ -35,7 +35,7 @@ pub async fn act(actor: AtIdentifier) -> Result<DateTime<Utc>, super::Error<Erro
         Some(Ipld::String(time_str)) => time_str.parse().map_err(|_| {
           event!(
             Level::WARN,
-            "Received invalid timestamp for createdAt: {:?}",
+            "(Notice) Received invalid timestamp for createdAt: {:?}",
             time_str
           );
           super::Error::BskyBug
@@ -43,7 +43,7 @@ pub async fn act(actor: AtIdentifier) -> Result<DateTime<Utc>, super::Error<Erro
         unknown => {
           event!(
             Level::WARN,
-            "Received unexpected value for createdAt: {:?}",
+            "(Notice) Received unexpected value for createdAt: {:?}",
             unknown
           );
           Err(super::Error::BskyBug)
@@ -53,7 +53,7 @@ pub async fn act(actor: AtIdentifier) -> Result<DateTime<Utc>, super::Error<Erro
     unknown => {
       event!(
         Level::WARN,
-        "Received unexpected value for record: {:?}",
+        "(Notice) Received unexpected value for record: {:?}",
         unknown
       );
       Err(super::Error::BskyBug)

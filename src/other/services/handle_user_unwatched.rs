@@ -15,7 +15,7 @@ pub async fn act(user_did: Arc<str>, is_opt_out: bool) {
     None => {
       event!(
         Level::WARN,
-        "Weird... {user_did} was not found in WATCHED_USERS when it should have been."
+        "(Notice) Weird... {user_did} was not found in WATCHED_USERS when it should have been. Was a command repeated?"
       );
     }
     #[allow(unused_variables)] // TODO: Delete from DB and notify watchers.

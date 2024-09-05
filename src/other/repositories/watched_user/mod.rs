@@ -3,7 +3,10 @@ use chrono::{DateTime, Utc};
 use tokio::sync::RwLock;
 use types::entities::watched_user::Watcher;
 
-use std::{collections::BTreeMap, sync::Arc};
+use std::{
+  collections::{BTreeMap, HashSet},
+  sync::Arc,
+};
 
 use async_once::AsyncOnce;
 use lazy_static::lazy_static;
@@ -20,5 +23,5 @@ async fn init_watched_users() -> RwLock<BTreeMap<Arc<str>, Data>> {
 
 pub struct Data {
   pub last_notified_watchers: DateTime<Utc>,
-  pub watchers: Vec<Watcher>,
+  pub watchers: HashSet<Watcher>,
 }

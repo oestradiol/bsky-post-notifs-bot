@@ -91,36 +91,45 @@ impl BskyReq for Request {
 fn handle_rich_text_error(e: BskyError) -> super::Error<Error> {
   match e {
     BskyError::Xrpc(e) => {
-      event!(Level::ERROR, "Error in RichText ATProto API Request: {e:?}");
+      event!(
+        Level::WARN,
+        "(Notice) Error in RichText ATProto API Request: {e:?}"
+      );
       super::Error::Api
     }
     BskyError::ConfigLoad(e) | BskyError::ConfigSave(e) => {
       event!(
-        Level::ERROR,
-        "Got Config error for supposed request with no config: {e:?}"
+        Level::WARN,
+        "(Notice) Got Config error for supposed request with no config: {e:?}"
       );
       super::Error::Other(Error::AtriumBug)
     }
     BskyError::Moderation(e) => {
       event!(
-        Level::ERROR,
-        "Got Moderation error for RichText Atrium API: {e:?}"
+        Level::WARN,
+        "(Notice) Got Moderation error for RichText Atrium API: {e:?}"
       );
       super::Error::Other(Error::AtriumBug)
     }
     BskyError::ApiType(e) => {
-      event!(Level::ERROR, "Got API error for RichText Atrium API: {e:?}");
+      event!(
+        Level::WARN,
+        "(Notice) Got API error for RichText Atrium API: {e:?}"
+      );
       super::Error::Other(Error::AtriumBug)
     }
     BskyError::NotLoggedIn => {
       event!(
-        Level::ERROR,
-        "Got NotLoggedIn for supposed unauthenticated request"
+        Level::WARN,
+        "(Notice) Got NotLoggedIn for supposed unauthenticated request"
       );
       super::Error::Other(Error::AtriumBug)
     }
     BskyError::InvalidAtUri => {
-      event!(Level::ERROR, "Got InvalidAtUri for RichText Atrium API");
+      event!(
+        Level::WARN,
+        "(Notice) Got InvalidAtUri for RichText Atrium API"
+      );
       super::Error::Other(Error::AtriumBug)
     }
   }
