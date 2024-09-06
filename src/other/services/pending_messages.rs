@@ -54,11 +54,15 @@ You can get a list of available commands with:
 "
     .to_string()
   };
-  drop(send_message::act(convo_id, message).await.map_err(|e| {
-    event!(
+  drop(
+    send_message::act(convo_id, message, false)
+      .await
+      .map_err(|e| {
+        event!(
       Level::WARN,
       "(Notice) Failed to send command message. Command completed successfully, however. Error: {e}"
     );
-  }));
+      }),
+  );
   Ok(())
 }

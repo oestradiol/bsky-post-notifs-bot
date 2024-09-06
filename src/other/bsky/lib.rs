@@ -1,7 +1,9 @@
 pub mod fetch_messages;
 pub mod get_last_post_time;
+pub mod get_profile;
 pub mod get_profiles;
 pub mod get_unread_convos;
+pub mod get_user_convo;
 mod login;
 pub mod read_convo;
 pub mod send_message;

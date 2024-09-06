@@ -1,6 +1,6 @@
 use super::Bsky;
 use atrium_api::{
-  app::bsky::actor::{defs::ProfileViewDetailedData, get_profiles},
+  app::bsky::actor::{defs::ProfileViewDetailedData, get_profile},
   types::{string::AtIdentifier, Object},
   xrpc,
 };
@@ -16,34 +16,22 @@ pub enum Error {}
 /// # Errors
 ///
 /// Will return any unhandled request errors.
-pub async fn act(
-  actors: Vec<AtIdentifier>,
-) -> Result<Vec<ProfileViewDetailedData>, super::Error<Error>> {
-  Ok(
-    Request { actors }
-      .act()
-      .await?
-      .profiles
-      .into_iter()
-      .map(|o| o.data)
-      .collect(),
-  )
+pub async fn act(actor: AtIdentifier) -> Result<ProfileViewDetailedData, super::Error<Error>> {
+  Request { actor }.act().await
 }
 
 struct Request {
-  actors: Vec<AtIdentifier>,
+  actor: AtIdentifier,
 }
 impl BskyReq for Request {
-  type ReqParams = get_profiles::Parameters;
-  type ReqOutput = get_profiles::OutputData;
-  type ReqError = get_profiles::Error;
+  type ReqParams = get_profile::Parameters;
+  type ReqOutput = ProfileViewDetailedData;
+  type ReqError = get_profile::Error;
   type HandledError = Error;
 
   fn get_params(self) -> Self::ReqParams {
-    get_profiles::Parameters {
-      data: get_profiles::ParametersData {
-        actors: self.actors,
-      },
+    get_profile::Parameters {
+      data: get_profile::ParametersData { actor: self.actor },
       extra_data: Ipld::Null,
     }
   }
@@ -57,7 +45,7 @@ impl BskyReq for Request {
       .app
       .bsky
       .actor
-      .get_profiles(params)
+      .get_profile(params)
       .await
   }
 

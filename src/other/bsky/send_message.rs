@@ -27,14 +27,21 @@ pub enum Error {
 /// Will return any unhandled request errors.
 pub async fn act(
   convo_id: String,
-  message: String,
+  mut msg_text: String,
+  with_rich_text: bool,
 ) -> Result<MessageViewData, super::Error<Error>> {
-  let RichText { facets, text } = RichText::new_with_detect_facets(message)
-    .await
-    .map_err(handle_rich_text_error)?; // TODO: Try disable RichText and send raw message to see how that goes
+  let mut msg_facets = None;
+  if with_rich_text {
+    let RichText { facets, text } = RichText::new_with_detect_facets(msg_text)
+      .await
+      .map_err(handle_rich_text_error)?;
+    msg_facets = facets;
+    msg_text = text;
+  }
+
   let message = MessageInputData {
-    facets,
-    text,
+    facets: msg_facets,
+    text: msg_text,
     embed: None,
   };
   Request { convo_id, message }.act().await

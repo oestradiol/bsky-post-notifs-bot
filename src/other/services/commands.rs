@@ -33,8 +33,6 @@ static AVAILABLE_COMMANDS: &str = "Available commands:
 /// # Errors
 ///
 /// `ListWatched` might fail to resolve handles
-#[allow(unused_variables)] // TODO: Implement this command.
-#[allow(clippy::unused_async)]
 pub async fn issue_command(
   command: Command,
   sender_did: Did,

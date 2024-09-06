@@ -1,19 +1,14 @@
-use std::hash::Hasher;
+use std::{collections::HashSet, hash::Hasher, sync::Arc};
 
 use serde::{Deserialize, Serialize};
 
-type Did = Box<str>;
+type Did = Arc<str>;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct WatchedUser {
-  #[serde(rename = "0")]
   pub did: Did, // PK
-  #[serde(rename = "1")]
-  pub watchers: Watchers,
+  pub watchers: HashSet<Watcher>,
 }
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Watchers(pub Vec<Watcher>);
 
 #[derive(Debug, Clone, Serialize, Deserialize, Eq)]
 pub struct Watcher {

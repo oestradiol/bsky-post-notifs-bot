@@ -7,6 +7,7 @@ async fn before_shutdown() {
     Level::INFO,
     "The bot is shutting down! Running shutdown routines..."
   );
+  // TODO: Save last state to DB
   Database::disconnect().await;
 }
 

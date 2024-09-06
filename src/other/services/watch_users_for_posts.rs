@@ -75,13 +75,13 @@ pub async fn watch_user(user_did: Arc<str>, mut last_notified_watchers: DateTime
         break;
       }
       Err(bsky::Error::Other(get_last_post_time::Error::ZeroPosts)) => {
-        event!(Level::DEBUG, "{user_did} currently has zero posts.");
+        event!(Level::DEBUG, "API returned zero posts for {user_did}.");
       }
       Ok(output) => {
         event!(Level::DEBUG, "{user_did}'s last post at: {:?}.", output);
         if output > last_notified_watchers {
           last_notified_watchers = output;
-          tokio::spawn(notify_watchers::r#try(user_did.clone()));
+          tokio::spawn(notify_watchers::r#try(user_did.clone(), None, true));
         }
       }
     }
