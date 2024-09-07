@@ -12,3 +12,4 @@ workspace = true
 [dependencies]
 lazy_static = "^1.4"
 tracing = "^0.1"
+anyhow = "^1.0"

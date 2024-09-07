@@ -1,7 +1,10 @@
+use std::path::PathBuf;
+
+use tracing::level_filters::LevelFilter;
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter, Layer};
 
-use environment::{LOG_DIRECTORY, STDOUT_LOG_SEVERITY};
+use environment::{owned_var_or, owned_var_or_else};
 
 /// # Panics
 ///
@@ -9,15 +12,20 @@ use environment::{LOG_DIRECTORY, STDOUT_LOG_SEVERITY};
 pub async fn init_logging() -> (WorkerGuard, WorkerGuard) {
   color_eyre::install().unwrap_or_default();
 
-  let canonical = super::canonicalize_unexistent(*LOG_DIRECTORY)
+  let log_directory =
+    owned_var_or_else("LOG_DIRECTORY", || PathBuf::from("/var/log/post_watcher"));
+
+  let canonical = super::canonicalize_unexistent(&log_directory)
     .unwrap_or_else(|| panic!("Failed to canonicalize path!"));
   tokio::fs::create_dir_all(&canonical)
     .await
     .unwrap_or_else(|e| panic!("Failed to create canonical directory: {e}. Path: {canonical:?}"));
 
+  let log_severity = owned_var_or("LOG_SEVERITY", LevelFilter::WARN);
+
   #[expect(clippy::unwrap_used)]
   let filter = EnvFilter::builder()
-    .with_default_directive((*STDOUT_LOG_SEVERITY).into())
+    .with_default_directive(log_severity.into())
     .from_env()
     .unwrap_or_else(|e| panic!("Invalid directives for tracing subscriber: {e}."))
     .add_directive("hyper_util::client=info".parse().unwrap()) // Hyper client is too verbose

@@ -8,7 +8,7 @@ use sqlx::{Error, Sqlite, SqlitePool, Transaction};
 use std::time::Duration;
 use tracing::{event, Level};
 
-use environment::{DATABASE_URL, DB_CONN_POOL_MAX};
+use environment::{owned_var_or, owned_var_or_else};
 use tokio::time;
 
 /// # Loadable<T>
@@ -39,22 +39,26 @@ impl Database {
   /// Panics when connection pool fails to initialize.
   #[expect(clippy::cognitive_complexity)]
   async fn init() -> Self {
-    if Sqlite::database_exists(*DATABASE_URL)
+    let db_url = owned_var_or_else("DATABASE_URL", || String::from("sqlite://data.db"));
+
+    if Sqlite::database_exists(&db_url)
       .await
       .unwrap_or(false)
     {
-      event!(Level::INFO, "Database found: {}", *DATABASE_URL);
+      event!(Level::INFO, "Database found: {}", &db_url);
     } else {
-      event!(Level::INFO, "Creating database: {}", *DATABASE_URL);
-      match Sqlite::create_database(*DATABASE_URL).await {
+      event!(Level::INFO, "Creating database: {}", &db_url);
+      match Sqlite::create_database(&db_url).await {
         Ok(()) => event!(Level::DEBUG, "Successfully created new DB file!"),
         Err(e) => panic!("Failed to create db! Error: {e}"),
       }
     }
 
+    let conn_pool_max: u32 = owned_var_or("DB_CONN_POOL_MAX", 100);
+
     let pool = SqlitePoolOptions::new()
-      .max_connections(*DB_CONN_POOL_MAX)
-      .connect(*DATABASE_URL)
+      .max_connections(conn_pool_max)
+      .connect(&db_url)
       .await
       .unwrap_or_else(|e| panic!("Failed to connect to Sqlite DB! Error: {e}"));
 
