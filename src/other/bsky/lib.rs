@@ -1,5 +1,5 @@
-pub mod fetch_messages;
 pub mod get_last_post_time;
+pub mod get_messages;
 pub mod get_profile;
 pub mod get_profiles;
 pub mod get_unread_convos;
@@ -15,12 +15,12 @@ use atrium_xrpc::{
   http::StatusCode,
 };
 use bsky_sdk::BskyAgent;
-use chrono::{DateTime, Utc};
 use lazy_static::lazy_static;
 use std::{sync::Arc, time::Duration};
 use thiserror::Error as ThisError;
 use tokio::{sync::RwLock, time::sleep};
 use tracing::{event, Level};
+use utils::Did;
 
 lazy_static! {
   pub static ref BSKY: AsyncOnce<RwLock<Bsky>> = AsyncOnce::new(Bsky::init());
@@ -30,24 +30,24 @@ static RETRY_DELAY: u64 = 15;
 
 pub struct Bsky {
   agent: Option<Arc<BskyAgent>>,
-  agent_id: Option<Arc<str>>,
-  pub last_action: DateTime<Utc>,
+  agent_id: Option<Did>,
+  // last_action: DateTime<Utc>,
 }
 impl Bsky {
   async fn init() -> RwLock<Self> {
-    #[allow(clippy::unwrap_used)] // Constant, should never fail
-    let last_action = DateTime::<Utc>::from_timestamp(0, 0).unwrap();
+    // #[allow(clippy::unwrap_used)] // Constant, should never fail
+    // let last_action = DateTime::<Utc>::from_timestamp(0, 0).unwrap();
     let (agent, did) = Self::retry_until_get_agent().await;
     let bsky = Self {
       agent: Some(Arc::new(agent)),
       agent_id: Some(did),
-      last_action,
+      // last_action,
     };
     RwLock::new(bsky)
   }
 
   #[allow(clippy::cognitive_complexity)]
-  async fn retry_until_get_agent() -> (BskyAgent, Arc<str>) {
+  async fn retry_until_get_agent() -> (BskyAgent, Did) {
     event!(Level::INFO, "Logging in...");
 
     let agent;
@@ -82,6 +82,13 @@ impl Bsky {
     bsky.agent_id = None;
   }
 
+  async fn revalidate_agent() {
+    let mut bsky = BSKY.get().await.write().await;
+    let (agent, did) = Self::retry_until_get_agent().await;
+    bsky.agent = Some(Arc::new(agent));
+    bsky.agent_id = Some(did);
+  }
+
   #[allow(clippy::missing_panics_doc)]
   pub async fn get_agent() -> Arc<BskyAgent> {
     let bsky = BSKY.get().await.read().await;
@@ -89,18 +96,23 @@ impl Bsky {
       Some(agent) => agent.clone(),
       None => {
         drop(bsky);
-        let mut bsky = BSKY.get().await.write().await;
-        let (agent, did) = Self::retry_until_get_agent().await;
-        bsky.agent = Some(Arc::new(agent));
-        bsky.agent_id = Some(did);
+        Self::revalidate_agent().await;
         #[allow(clippy::unwrap_used)] // Defined immediately above
-        bsky.agent.as_ref().unwrap().clone()
+        BSKY
+          .get()
+          .await
+          .read()
+          .await
+          .agent
+          .as_ref()
+          .unwrap()
+          .clone()
       }
     }
   }
 
   #[allow(clippy::missing_panics_doc)]
-  pub async fn get_agent_did() -> Arc<str> {
+  pub async fn get_agent_did() -> Did {
     let bsky = BSKY.get().await.read().await;
     match &bsky.agent_id {
       Some(did) => did.clone(),
@@ -111,14 +123,18 @@ impl Bsky {
             "FIXME: Agent ID not found, but agent is present!"
           );
         }
-
         drop(bsky);
-        let mut bsky = BSKY.get().await.write().await;
-        let (agent, did) = Self::retry_until_get_agent().await;
-        bsky.agent = Some(Arc::new(agent));
-        bsky.agent_id = Some(did);
+        Self::revalidate_agent().await;
         #[allow(clippy::unwrap_used)] // Defined immediately above
-        bsky.agent_id.as_ref().unwrap().clone()
+        BSKY
+          .get()
+          .await
+          .read()
+          .await
+          .agent_id
+          .as_ref()
+          .unwrap()
+          .clone()
       }
     }
   }
@@ -134,13 +150,13 @@ pub enum Error<Other> {
   Other(#[from] Other),
 }
 
-static PER_REQ_AUTH_MAX_RETRIES: u8 = 3;
-
 trait BskyReq {
   type ReqParams: Clone;
   type ReqOutput;
   type ReqError: std::fmt::Debug;
   type HandledError: std::error::Error + std::fmt::Debug;
+  const PER_REQ_MAX_RETRIES: u8 = 5;
+  const ON_FAILURE_DELAY: u64 = 100; // 100 Milliseconds
 
   fn get_params(self) -> Self::ReqParams;
   async fn request(
@@ -161,11 +177,14 @@ trait BskyReq {
     let params = Self::get_params(self);
     loop {
       match Self::attempt(params.clone()).await {
-        Err(None) => {
+        Err(err) => {
           event!(Level::DEBUG, "Failed to issue request, auth error");
 
-          if failed_attempts < PER_REQ_AUTH_MAX_RETRIES {
+          if failed_attempts < Self::PER_REQ_MAX_RETRIES {
             failed_attempts += 1;
+            sleep(Duration::from_millis(Self::ON_FAILURE_DELAY)).await;
+          } else if let Some(err) = err {
+            return Err(err);
           } else {
             // Shouldn't ever really reach this, after a 401, the agent should be revalidated successfully
             // or else the program will have stopped. But we leave this here just in case ig?
@@ -174,7 +193,6 @@ trait BskyReq {
 
           continue;
         }
-        Err(Some(err)) => return Err(err),
         Ok(output) => return Ok(output),
       }
     }

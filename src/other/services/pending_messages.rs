@@ -9,14 +9,14 @@ use lazy_static::lazy_static;
 use tokio::sync::RwLock;
 use tracing::{event, Level};
 
-use crate::commands::{issue_command, parse_command};
+use crate::commands;
 
 lazy_static! {
   pub static ref PENDING_MESSAGES: RwLock<HashMap<String, MessageViewData>> =
     RwLock::new(HashMap::new());
 }
 
-pub async fn add_pending(convo_id: String, data: MessageViewData) {
+pub async fn add(convo_id: String, data: MessageViewData) {
   let agent_did = Bsky::get_agent_did().await;
   if *agent_did == *data.sender.data.did {
     event!(Level::DEBUG, "Ignoring message from self.");
@@ -26,7 +26,7 @@ pub async fn add_pending(convo_id: String, data: MessageViewData) {
   PENDING_MESSAGES.write().await.insert(convo_id, data);
 }
 
-pub async fn handle_pending(convo_id: String, data: MessageViewData) -> Result<(), anyhow::Error> {
+pub async fn process(convo_id: String, data: MessageViewData) -> commands::Result<()> {
   let MessageViewData {
     facets,
     text,
@@ -38,22 +38,11 @@ pub async fn handle_pending(convo_id: String, data: MessageViewData) -> Result<(
   } = data;
 
   event!(Level::DEBUG, "Handling message from user {}: {text}", &*did);
-  let command = parse_command(&text, facets).await?;
-  let message = if let Some(command) = command {
-    let log = format!("Issued command for user {}: {:?}.", &*did, command);
-    let res = issue_command(command, did).await.map_err(|e| anyhow!(e))?;
-    event!(Level::DEBUG, log);
-    res
-  } else {
-    "\
-If you're trying to issue a command, please use the command prefix:
-  - `!<command>`
-
-You can get a list of available commands with:
-  - `!help`
-"
-    .to_string()
-  };
+  let message = commands::parse(&text, facets)
+    .await?
+    .process(did)
+    .await
+    .map_err(|e| anyhow!(e))?;
   drop(
     send_message::act(convo_id, message, false)
       .await

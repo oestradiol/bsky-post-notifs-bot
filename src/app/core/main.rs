@@ -3,6 +3,7 @@ mod on_shutdown;
 use environment::WORKSPACE_DIR;
 use on_shutdown::with_graceful_shutdown;
 use repositories::Database;
+use services::jobs;
 use tracing::{event, Level};
 
 #[cfg(unix)]
@@ -26,19 +27,18 @@ async fn main() {
 
   #[allow(clippy::redundant_pub_crate)] // Select macro propagates this
   let commands_fut = async {
-    let listen = services::listen_for_commands::act();
-    let handle = services::handle_pending_messages::act();
+    let listener = jobs::command_listener::begin();
+    let issuer = jobs::command_issuer::begin();
 
     tokio::select! {
-      () = listen => {},
-      () = handle => {},
+      () = listener => {},
+      () = issuer => {},
     }
 
     event!(Level::WARN, "Commands are no longer being processed...");
   };
-
   tokio::spawn(commands_fut);
-  tokio::spawn(services::watch_users_for_posts::act());
+  tokio::spawn(jobs::user_watcher::begin());
 
   with_graceful_shutdown().await;
 }

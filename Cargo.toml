@@ -6,7 +6,6 @@ members = [
   "src/other/environment",
   "src/other/repositories",
   "src/other/services",
-  "src/other/types",
   "src/other/utils",
 ]
 

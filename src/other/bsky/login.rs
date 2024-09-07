@@ -8,8 +8,9 @@ use bsky_sdk::{
 };
 use environment::{BOT_PASSWORD, BOT_USERNAME, WORKSPACE_DIR};
 use tracing::{event, Level};
+use utils::Did;
 
-pub async fn act() -> Result<(BskyAgent, Arc<str>), BskyError> {
+pub async fn act() -> Result<(BskyAgent, Did), BskyError> {
   let path = (*WORKSPACE_DIR).join(format!("{}-config.json", *BOT_USERNAME));
   let file_store = FileStore::new(path);
 
@@ -19,7 +20,7 @@ pub async fn act() -> Result<(BskyAgent, Arc<str>), BskyError> {
   }
 }
 
-async fn do_auth(file_store: &FileStore) -> Result<(BskyAgent, Arc<str>), BskyError> {
+async fn do_auth(file_store: &FileStore) -> Result<(BskyAgent, Did), BskyError> {
   let agent = BskyAgent::builder().build().await?;
   agent.login(*BOT_USERNAME, *BOT_PASSWORD).await?;
   let config = agent.to_config().await;
@@ -29,7 +30,7 @@ async fn do_auth(file_store: &FileStore) -> Result<(BskyAgent, Arc<str>), BskyEr
   Ok((agent, Arc::from(String::from(did))))
 }
 
-async fn try_load_from_config(file_store: &FileStore) -> Result<(BskyAgent, Arc<str>), BskyError> {
+async fn try_load_from_config(file_store: &FileStore) -> Result<(BskyAgent, Did), BskyError> {
   if let Ok(config) = Config::load(file_store).await {
     #[allow(clippy::unwrap_used)] // Restored from session
     let did = config.session.as_ref().unwrap().did.clone();
@@ -48,7 +49,7 @@ async fn try_load_from_config(file_store: &FileStore) -> Result<(BskyAgent, Arc<
 async fn handle_bsky_error(
   file_store: &FileStore,
   e: BskyError,
-) -> Result<(BskyAgent, Arc<str>), BskyError> {
+) -> Result<(BskyAgent, Did), BskyError> {
   match e {
     BskyError::Xrpc(e) => {
       if let GenericXrpcError::Response { status, .. } = *e {

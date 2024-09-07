@@ -20,14 +20,14 @@ use tokio::time;
 /// - Err(e)           query failed
 /// - Ok(None)         T not found
 /// - Ok(Some(T))      T found
-pub type Loadable<T> = sqlx::Result<Option<T>>;
+pub(crate) type Loadable<T> = sqlx::Result<Option<T>>;
 
 /// # Transaction
 /// Represents an Sqlite transaction
-pub type AppTransaction = Transaction<'static, Sqlite>;
+pub(crate) type AppTransaction = Transaction<'static, Sqlite>;
 
 lazy_static! {
-  static ref DB_CONTEXT: AsyncOnce<Database> = AsyncOnce::new(Database::init());
+  static ref DB: AsyncOnce<Database> = AsyncOnce::new(Database::init());
 }
 
 pub struct Database {
@@ -39,7 +39,10 @@ impl Database {
   /// Panics when connection pool fails to initialize.
   #[allow(clippy::cognitive_complexity)]
   async fn init() -> Self {
-    if Sqlite::database_exists(*DATABASE_URL).await.unwrap_or(false) {
+    if Sqlite::database_exists(*DATABASE_URL)
+      .await
+      .unwrap_or(false)
+    {
       event!(Level::INFO, "Database found: {}", *DATABASE_URL);
     } else {
       event!(Level::INFO, "Creating database: {}", *DATABASE_URL);
@@ -48,7 +51,7 @@ impl Database {
         Err(e) => panic!("Failed to create db! Error: {e}"),
       }
     }
-    
+
     let pool = SqlitePoolOptions::new()
       .max_connections(*DB_CONN_POOL_MAX)
       .connect(*DATABASE_URL)
@@ -59,14 +62,14 @@ impl Database {
   }
 
   pub async fn get_pool() -> &'static SqlitePool {
-    &DB_CONTEXT.get().await.pool
+    &DB.get().await.pool
   }
 
   /// # Errors
   ///
   /// Fails when a transaction cannot be started.
-  pub async fn get_tx() -> Result<AppTransaction, Error> {
-    DB_CONTEXT.get().await.pool.begin().await
+  pub(crate) async fn get_tx() -> Result<AppTransaction, Error> {
+    DB.get().await.pool.begin().await
   }
 
   #[allow(clippy::redundant_pub_crate)] // Select macro propagates this
@@ -74,7 +77,7 @@ impl Database {
     let db_countdown = time::sleep(Duration::from_secs(15));
     let db_shutdown = async {
       event!(Level::INFO, "Closing database connections (max. 15s)...");
-      DB_CONTEXT.get().await.pool.close().await;
+      DB.get().await.pool.close().await;
       event!(Level::INFO, "Database connections closed!");
     };
 

@@ -1,19 +1,26 @@
-use std::{collections::HashSet, hash::RandomState, sync::Arc};
+use std::{collections::HashSet, hash::RandomState};
 
 use atrium_api::{
   chat::bsky::convo::{defs::ConvoViewData, get_convo_for_members},
   types::Object,
 };
 use bsky::{get_profile, get_user_convo, send_message};
-use repositories::watched_user::WATCHED_USERS;
+use repositories::watched_user::{self, Watcher};
 use tracing::{event, Level};
-use types::entities::watched_user::Watcher;
+use utils::Did;
 
-pub async fn r#try(watched_did: Arc<str>, watchers: Option<HashSet<Watcher, RandomState>>, is_post: bool) {
+pub async fn many(
+  watched_did: Did,
+  watchers: Option<HashSet<Watcher, RandomState>>,
+  is_post: bool,
+) {
   event!(Level::INFO, "Now notifying watchers of {watched_did}.");
-  let watched_users = WATCHED_USERS.get().await.read().await;
+  let watchers = if watchers.is_some() {
+    watchers
+  } else {
+    watched_user::get_watchers(&watched_did).await
+  };
 
-  let watchers = watchers.or_else(|| watched_users.get(&watched_did).map(|w| w.watchers.clone()));
   if let Some(watchers) = watchers {
     for u in watchers {
       #[allow(unused_variables)] // TODO: Actually implement this feature
@@ -21,21 +28,15 @@ pub async fn r#try(watched_did: Arc<str>, watchers: Option<HashSet<Watcher, Rand
       let watched_did = watched_did.clone();
 
       tokio::spawn(async move {
-        notify_watcher(did, watched_did, is_post)
-          .await
-          .map_err(|e| {
-            event!(Level::WARN, "(Notice) Failed to notify user: {e}");
-          })
+        act(did, watched_did, is_post).await.map_err(|e| {
+          event!(Level::WARN, "(Notice) Failed to notify user: {e}");
+        })
       });
     }
   }
 }
 
-async fn notify_watcher(
-  watcher: Arc<str>,
-  watched_did: Arc<str>,
-  is_post: bool,
-) -> Result<(), anyhow::Error> {
+async fn act(watcher: Did, watched_did: Did, is_post: bool) -> Result<(), anyhow::Error> {
   #[allow(clippy::unwrap_used)] // Did from job so always valid
   let handle = get_profile::act(watched_did.parse().unwrap()).await?.handle;
   #[allow(clippy::unwrap_used)] // Did from DB so always valid

@@ -1,12 +1,12 @@
-use std::sync::Arc;
+use utils::Did;
 
 use crate::{AppTransaction, Loadable};
 
 /// # Errors
-/// 
+///
 /// Returns an error if the query fails.
-pub async fn delete(tx: &mut AppTransaction, did: Arc<str>) -> Loadable<()> {
-  let did = &*did;
+pub async fn delete(tx: &mut AppTransaction, watched_did: &Did) -> Loadable<()> {
+  let did = &**watched_did;
   let rows = sqlx::query!(r#"DELETE FROM "WatchedUser" WHERE did = $1"#, did)
     .execute(&mut **tx)
     .await?

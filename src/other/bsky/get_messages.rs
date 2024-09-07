@@ -4,11 +4,12 @@ use super::Bsky;
 use atrium_api::{
   agent::bluesky::AtprotoServiceType,
   chat::bsky::convo::get_messages,
-  types::{LimitedNonZeroU8, Object, Union},
+  types::{LimitedNonZeroU8, Object},
   xrpc,
 };
 use ipld_core::ipld::Ipld;
 use thiserror::Error as ThisError;
+use utils::handle_union;
 use xrpc::error::Error as XrpcError;
 
 use crate::BskyReq;
@@ -23,7 +24,7 @@ pub enum Error {}
 pub async fn act(
   convo_id: String,
   count: NonZeroU64,
-) -> Result<Vec<Union<get_messages::OutputMessagesItem>>, super::Error<Error>> {
+) -> Result<Vec<get_messages::OutputMessagesItem>, super::Error<Error>> {
   #[allow(clippy::unwrap_used)] // Hard coded
   let mut batches: Vec<LimitedNonZeroU8<100>> =
     vec![100.try_into().unwrap(); (count.get() / 100) as usize];
@@ -42,12 +43,17 @@ pub async fn act(
       limit,
     }
     .act()
-    .await?; // TODO: Maybe handle instead, maybe simply ignore error and try again since cursor here? But limit attempts.
+    .await?;
     all_unread_messages.extend(messages);
     curr_cursor = cursor;
   }
 
-  Ok(all_unread_messages)
+  Ok(
+    all_unread_messages
+      .into_iter()
+      .filter_map(handle_union)
+      .collect(),
+  )
 }
 
 struct Request {

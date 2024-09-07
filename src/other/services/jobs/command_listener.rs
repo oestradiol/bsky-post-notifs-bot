@@ -1,17 +1,18 @@
 use std::{cmp, time::Duration};
 
-use super::handle_unanswered_convos;
 use bsky::get_unread_convos;
 use chrono::Utc;
 use tokio::time::sleep;
 use tracing::{event, Level};
 use utils::handle_api_failure;
 
+use crate::unanswered_convos;
+
 pub static WATCH_DELAY: i64 = 2; // 2 Seconds
 
 #[allow(clippy::cognitive_complexity)]
 #[allow(clippy::missing_panics_doc)]
-pub async fn act() {
+pub async fn begin() {
   event!(Level::INFO, "Now listening to user commands.");
 
   let mut failures_in_a_row = 0;
@@ -39,7 +40,7 @@ pub async fn act() {
       Ok(dms) => {
         // Awaits to handle this batch first, or else concurrency
         // issues might happen where the same convo is handled twice
-        handle_unanswered_convos::act(dms).await;
+        unanswered_convos::handle_many(dms.into_iter().map(|c| c.data).collect()).await;
       }
     }
     failures_in_a_row = 0;
