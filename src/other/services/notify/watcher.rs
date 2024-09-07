@@ -23,7 +23,7 @@ pub async fn many(
 
   if let Some(watchers) = watchers {
     for u in watchers {
-      #[allow(unused_variables)] // TODO: Actually implement this feature
+      #[expect(unused_variables)] // TODO: Actually implement this feature
       let Watcher { did, watch_replies } = u;
       let watched_did = watched_did.clone();
 
@@ -37,9 +37,9 @@ pub async fn many(
 }
 
 async fn act(watcher: Did, watched_did: Did, is_post: bool) -> Result<(), anyhow::Error> {
-  #[allow(clippy::unwrap_used)] // Did from job so always valid
+  #[expect(clippy::unwrap_used)] // Did from job so always valid
   let handle = get_profile::act(watched_did.parse().unwrap()).await?.handle;
-  #[allow(clippy::unwrap_used)] // Did from DB so always valid
+  #[expect(clippy::unwrap_used)] // Did from DB so always valid
   let get_convo_for_members::OutputData {
     convo: Object {
       data: ConvoViewData { id: convo_id, .. },

@@ -6,7 +6,7 @@ use bsky::{get_user_convo, send_message};
 use utils::Did;
 
 pub async fn no_longer(watched_did: Did) -> Result<(), anyhow::Error> {
-  #[allow(clippy::unwrap_used)] // Did from DB so always valid
+  #[expect(clippy::unwrap_used)] // Did from DB so always valid
   let watched_did = watched_did.parse().unwrap();
 
   let get_convo_for_members::OutputData {
@@ -27,7 +27,7 @@ pub async fn no_longer(watched_did: Did) -> Result<(), anyhow::Error> {
 }
 
 pub async fn now_watched(watched_did: Did) -> Result<(), anyhow::Error> {
-  #[allow(clippy::unwrap_used)] // Did from DB so always valid
+  #[expect(clippy::unwrap_used)] // Did from DB so always valid
   let watched_did = watched_did.parse().unwrap();
 
   let get_convo_for_members::OutputData {

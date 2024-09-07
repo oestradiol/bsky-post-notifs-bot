@@ -10,8 +10,8 @@ use crate::unanswered_convos;
 
 pub static WATCH_DELAY: i64 = 2; // 2 Seconds
 
-#[allow(clippy::cognitive_complexity)]
-#[allow(clippy::missing_panics_doc)]
+#[expect(clippy::cognitive_complexity)]
+#[expect(clippy::missing_panics_doc)]
 pub async fn begin() {
   event!(Level::INFO, "Now listening to user commands.");
 
@@ -50,7 +50,7 @@ pub async fn begin() {
       .signed_duration_since(before_task)
       .num_milliseconds();
 
-    #[allow(clippy::unwrap_used)] // cmp::max checked so unwrap is safe
+    #[expect(clippy::unwrap_used)] // cmp::max checked so unwrap is safe
     let time_left = cmp::max(WATCH_DELAY * 1000 - task_delta, 0)
       .try_into()
       .unwrap();

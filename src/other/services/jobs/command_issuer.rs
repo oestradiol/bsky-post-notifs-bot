@@ -8,8 +8,7 @@ use crate::{
 use tokio::time::sleep;
 use tracing::{event, Level};
 
-#[allow(clippy::cognitive_complexity)]
-#[allow(clippy::missing_panics_doc)]
+#[expect(clippy::missing_panics_doc)]
 pub async fn begin() {
   event!(Level::INFO, "Now handling pending messages.");
 
@@ -29,7 +28,7 @@ pub async fn begin() {
       })
       .for_each(drop);
 
-    #[allow(clippy::unwrap_used)] // Constant
+    #[expect(clippy::unwrap_used)] // Constant
     sleep(Duration::from_secs(
       command_listener::WATCH_DELAY.try_into().unwrap(),
     ))

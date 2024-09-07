@@ -25,7 +25,7 @@ async fn main() {
 
   event!(Level::INFO, "Application starting!");
 
-  #[allow(clippy::redundant_pub_crate)] // Select macro propagates this
+  #[expect(clippy::redundant_pub_crate)] // Select macro propagates this
   let commands_fut = async {
     let listener = jobs::command_listener::begin();
     let issuer = jobs::command_issuer::begin();

@@ -42,15 +42,15 @@ async fn handle(convo: ConvoViewData) -> Result<(), Error<anyhow::Error>> {
         add(convo_id.clone(), data).await;
       }
       Some(ConvoViewLastMessageRefs::DeletedMessageView(_)) => {
-        event!(Level::DEBUG, "Message has been unsent. Ignoring.")
+        event!(Level::DEBUG, "Message has been unsent. Ignoring.");
       }
       None => {
-        #[allow(clippy::unwrap_used)] // NonZeroU64, should never fail since 1
+        #[expect(clippy::unwrap_used)] // NonZeroU64, should never fail since 1
         fetch_and_handle_unread(convo_id.clone(), 1.try_into().unwrap()).await?;
       }
     }
   } else {
-    #[allow(clippy::unwrap_used)]
+    #[expect(clippy::unwrap_used)]
     // NonZeroU64, handle_unanswered_convo should never be called with less than 1
     let as_non_zero = TryInto::<u64>::try_into(unread_count)
       .unwrap()

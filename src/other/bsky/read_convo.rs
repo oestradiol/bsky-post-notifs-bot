@@ -43,7 +43,7 @@ impl BskyReq for Request {
     Bsky::get_agent()
       .await
       .api_with_proxy(
-        #[allow(clippy::unwrap_used)] // Hard coded
+        #[expect(clippy::unwrap_used)] // Hard coded
         "did:web:api.bsky.chat".parse().unwrap(),
         AtprotoServiceType::BskyChat,
       )

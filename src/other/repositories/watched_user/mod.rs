@@ -85,7 +85,7 @@ async fn handled_db_delete(watched_did: Did) {
     event!(
       Level::WARN,
       "Failed to delete watched user from Sqlite: {e}"
-    )
+    );
   });
 }
 

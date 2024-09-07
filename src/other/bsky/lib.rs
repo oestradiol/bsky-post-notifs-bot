@@ -35,7 +35,7 @@ pub struct Bsky {
 }
 impl Bsky {
   async fn init() -> RwLock<Self> {
-    // #[allow(clippy::unwrap_used)] // Constant, should never fail
+    // #[expect(clippy::unwrap_used)] // Constant, should never fail
     // let last_action = DateTime::<Utc>::from_timestamp(0, 0).unwrap();
     let (agent, did) = Self::retry_until_get_agent().await;
     let bsky = Self {
@@ -46,7 +46,7 @@ impl Bsky {
     RwLock::new(bsky)
   }
 
-  #[allow(clippy::cognitive_complexity)]
+  #[expect(clippy::cognitive_complexity)]
   async fn retry_until_get_agent() -> (BskyAgent, Did) {
     event!(Level::INFO, "Logging in...");
 
@@ -89,7 +89,7 @@ impl Bsky {
     bsky.agent_id = Some(did);
   }
 
-  #[allow(clippy::missing_panics_doc)]
+  #[expect(clippy::missing_panics_doc)]
   pub async fn get_agent() -> Arc<BskyAgent> {
     let bsky = BSKY.get().await.read().await;
     match &bsky.agent {
@@ -97,7 +97,7 @@ impl Bsky {
       None => {
         drop(bsky);
         Self::revalidate_agent().await;
-        #[allow(clippy::unwrap_used)] // Defined immediately above
+        #[expect(clippy::unwrap_used)] // Defined immediately above
         BSKY
           .get()
           .await
@@ -111,7 +111,7 @@ impl Bsky {
     }
   }
 
-  #[allow(clippy::missing_panics_doc)]
+  #[expect(clippy::missing_panics_doc)]
   pub async fn get_agent_did() -> Did {
     let bsky = BSKY.get().await.read().await;
     match &bsky.agent_id {
@@ -125,7 +125,7 @@ impl Bsky {
         }
         drop(bsky);
         Self::revalidate_agent().await;
-        #[allow(clippy::unwrap_used)] // Defined immediately above
+        #[expect(clippy::unwrap_used)] // Defined immediately above
         BSKY
           .get()
           .await
@@ -263,7 +263,7 @@ trait BskyReq {
 // async fn minimum_delay() {
 //   let mut context: RwLockWriteGuard<'_, Bsky> = BSKY.get().await.write().await;
 //   let current = chrono::offset::Utc::now();
-//   #[allow(clippy::unwrap_used)] // Guaranteed not to overflow
+//   #[expect(clippy::unwrap_used)] // Guaranteed not to overflow
 //   let elapsed: u64 = current
 //     .signed_duration_since(context.last_action)
 //     .num_milliseconds()

@@ -15,7 +15,7 @@ pub async fn init_logging() -> (WorkerGuard, WorkerGuard) {
     .await
     .unwrap_or_else(|e| panic!("Failed to create canonical directory: {e}. Path: {canonical:?}"));
 
-  #[allow(clippy::unwrap_used)]
+  #[expect(clippy::unwrap_used)]
   let filter = EnvFilter::builder()
     .with_default_directive((*STDOUT_LOG_SEVERITY).into())
     .from_env()

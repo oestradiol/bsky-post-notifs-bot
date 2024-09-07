@@ -24,8 +24,8 @@ use unwatch::Unwatch;
 use utils::handle_union;
 use watch::Watch;
 
-pub(crate) type Result<T> = core::result::Result<T, bsky::Error<anyhow::Error>>;
-pub(crate) type PinnedFut<T> = Pin<Box<dyn Future<Output = T> + Send + 'static>>;
+pub type Result<T> = core::result::Result<T, bsky::Error<anyhow::Error>>;
+pub type PinnedFut<T> = Pin<Box<dyn Future<Output = T> + Send + 'static>>;
 
 pub trait Command: Debug {
   fn process(self: Box<Self>, sender_id: Did) -> PinnedFut<Result<String>>;
@@ -36,10 +36,10 @@ pub trait Command: Debug {
     Box::new(self) as Box<dyn Command + Send>
   }
 }
-pub(crate) trait Parseable: Command {
+pub trait Parseable: Command {
   async fn parse(facets: Option<Vec<Main>>) -> Result<Self>
   where
-    Self: Sized + Command;
+    Self: Sized;
 }
 
 /// # Errors
@@ -59,7 +59,7 @@ pub async fn parse(
   }
 
   let mut parts = text.split_whitespace();
-  #[allow(clippy::unwrap_used)] // Checked above
+  #[expect(clippy::unwrap_used)] // Checked above
   let command = parts.next().unwrap().to_lowercase();
 
   let res = match command.as_str() {

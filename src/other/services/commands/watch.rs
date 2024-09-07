@@ -47,7 +47,7 @@ impl Command for Watch {
               }),
           )
         }
-        Self::ParseFail => return Ok("Please make sure to mention at least one user.".to_string()),
+        Self::ParseFail => Ok("Please make sure to mention at least one user.".to_string()),
       }
     })
   }

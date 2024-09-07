@@ -77,7 +77,7 @@ impl Watching {
 
   pub async fn get_watched_by(watcher_did: &Did) -> HashSet<Did> {
     let mut watched_by = HashSet::new();
-    #[allow(clippy::significant_drop_in_scrutinee)] // Clippy bug, lol
+    #[expect(clippy::significant_drop_in_scrutinee)] // Clippy bug, lol
     for (did, watchers) in STATE.get().await.0.read().await.iter() {
       if watchers.contains(watcher_did).await {
         watched_by.insert(did.clone());

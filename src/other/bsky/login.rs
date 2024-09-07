@@ -24,7 +24,7 @@ async fn do_auth(file_store: &FileStore) -> Result<(BskyAgent, Did), BskyError> 
   let agent = BskyAgent::builder().build().await?;
   agent.login(*BOT_USERNAME, *BOT_PASSWORD).await?;
   let config = agent.to_config().await;
-  #[allow(clippy::unwrap_used)] // Just logged in
+  #[expect(clippy::unwrap_used)] // Just logged in
   let did = config.session.as_ref().unwrap().did.clone();
   config.save(file_store).await?;
   Ok((agent, Arc::from(String::from(did))))
@@ -32,7 +32,7 @@ async fn do_auth(file_store: &FileStore) -> Result<(BskyAgent, Did), BskyError> 
 
 async fn try_load_from_config(file_store: &FileStore) -> Result<(BskyAgent, Did), BskyError> {
   if let Ok(config) = Config::load(file_store).await {
-    #[allow(clippy::unwrap_used)] // Restored from session
+    #[expect(clippy::unwrap_used)] // Restored from session
     let did = config.session.as_ref().unwrap().did.clone();
     let agent = BskyAgent::builder().config(config).build().await?;
     event!(

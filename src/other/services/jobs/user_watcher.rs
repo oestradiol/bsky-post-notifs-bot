@@ -23,7 +23,7 @@ pub async fn begin() {
 }
 
 static WATCH_DELAY: i64 = 15; // 15 Seconds
-#[allow(clippy::missing_panics_doc)] // False positive
+#[expect(clippy::missing_panics_doc)] // False positive
 pub async fn new(watched_did: Did) {
   let watched_did_as_at = watched_did.parse::<AtIdentifier>().unwrap();
   let mut failures_in_a_row = 0;
@@ -40,7 +40,6 @@ pub async fn new(watched_did: Did) {
     event!(Level::DEBUG, "Checking for new posts from {watched_did}...");
 
     let before_task = Utc::now();
-    #[allow(clippy::unwrap_used)] // Guaranteed that every user is a valid DID
     match get_last_post_time::act(watched_did_as_at.clone()).await {
       Err(bsky::Error::Api) => {
         event!(
@@ -84,7 +83,7 @@ pub async fn new(watched_did: Did) {
       .signed_duration_since(before_task)
       .num_milliseconds();
 
-    #[allow(clippy::unwrap_used)] // cmp::max checked so unwrap is safe
+    #[expect(clippy::unwrap_used)] // cmp::max checked so unwrap is safe
     let time_left = cmp::max(WATCH_DELAY * 1000 - task_delta, 0)
       .try_into()
       .unwrap();

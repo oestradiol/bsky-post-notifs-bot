@@ -76,7 +76,7 @@ impl BskyReq for Request {
     Bsky::get_agent()
       .await
       .api_with_proxy(
-        #[allow(clippy::unwrap_used)] // Hard coded
+        #[expect(clippy::unwrap_used)] // Hard coded
         "did:web:api.bsky.chat".parse().unwrap(),
         AtprotoServiceType::BskyChat,
       )
@@ -94,7 +94,7 @@ impl BskyReq for Request {
   }
 }
 
-#[allow(clippy::cognitive_complexity)]
+#[expect(clippy::cognitive_complexity)]
 fn handle_rich_text_error(e: BskyError) -> super::Error<Error> {
   match e {
     BskyError::Xrpc(e) => {

@@ -20,17 +20,17 @@ pub enum Error {}
 /// # Errors
 ///
 /// Will return any unhandled request errors.
-#[allow(clippy::missing_panics_doc)]
+#[expect(clippy::missing_panics_doc)]
 pub async fn act(
   convo_id: String,
   count: NonZeroU64,
 ) -> Result<Vec<get_messages::OutputMessagesItem>, super::Error<Error>> {
-  #[allow(clippy::unwrap_used)] // Hard coded
+  #[expect(clippy::unwrap_used)] // Hard coded
   let mut batches: Vec<LimitedNonZeroU8<100>> =
     vec![100.try_into().unwrap(); (count.get() / 100) as usize];
   let remainder = (count.get() % 100) as u8;
   if remainder > 0 {
-    #[allow(clippy::unwrap_used)] // NonZeroU64, should never fail since remainder [1, 100)
+    #[expect(clippy::unwrap_used)] // NonZeroU64, should never fail since remainder [1, 100)
     batches.push(remainder.try_into().unwrap());
   }
 
@@ -84,7 +84,7 @@ impl BskyReq for Request {
     Bsky::get_agent()
       .await
       .api_with_proxy(
-        #[allow(clippy::unwrap_used)] // Hard coded
+        #[expect(clippy::unwrap_used)] // Hard coded
         "did:web:api.bsky.chat".parse().unwrap(),
         AtprotoServiceType::BskyChat,
       )

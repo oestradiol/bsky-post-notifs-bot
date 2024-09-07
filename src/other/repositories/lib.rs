@@ -37,7 +37,7 @@ impl Database {
   /// # Panics
   ///
   /// Panics when connection pool fails to initialize.
-  #[allow(clippy::cognitive_complexity)]
+  #[expect(clippy::cognitive_complexity)]
   async fn init() -> Self {
     if Sqlite::database_exists(*DATABASE_URL)
       .await
@@ -72,7 +72,7 @@ impl Database {
     DB.get().await.pool.begin().await
   }
 
-  #[allow(clippy::redundant_pub_crate)] // Select macro propagates this
+  #[expect(clippy::redundant_pub_crate)] // Select macro propagates this
   pub async fn disconnect() {
     let db_countdown = time::sleep(Duration::from_secs(15));
     let db_shutdown = async {

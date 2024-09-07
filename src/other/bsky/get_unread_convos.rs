@@ -51,7 +51,7 @@ impl BskyReq for Request {
     list_convos::Parameters {
       data: list_convos::ParametersData {
         cursor: self.curr_cursor,
-        #[allow(clippy::unwrap_used)] // Safe because it's a constant
+        #[expect(clippy::unwrap_used)] // Safe because it's a constant
         limit: Some(15.try_into().unwrap()),
       },
       extra_data: Ipld::Null,
@@ -64,7 +64,7 @@ impl BskyReq for Request {
     Bsky::get_agent()
       .await
       .api_with_proxy(
-        #[allow(clippy::unwrap_used)] // Hard coded
+        #[expect(clippy::unwrap_used)] // Hard coded
         "did:web:api.bsky.chat".parse().unwrap(),
         AtprotoServiceType::BskyChat,
       )

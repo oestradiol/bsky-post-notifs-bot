@@ -17,9 +17,9 @@ pub enum Error {}
 /// # Errors
 ///
 /// Will return any unhandled request errors.
-#[allow(clippy::missing_panics_doc)]
+#[expect(clippy::missing_panics_doc)]
 pub async fn act(user_id: Did) -> Result<get_convo_for_members::OutputData, super::Error<Error>> {
-  #[allow(clippy::unwrap_used)] // Safe, gotten from agent
+  #[expect(clippy::unwrap_used)] // Safe, gotten from agent
   let our_did = Did::new(Bsky::get_agent_did().await.to_string()).unwrap();
   Request {
     members: vec![user_id, our_did],
@@ -52,7 +52,7 @@ impl BskyReq for Request {
     Bsky::get_agent()
       .await
       .api_with_proxy(
-        #[allow(clippy::unwrap_used)] // Hard coded
+        #[expect(clippy::unwrap_used)] // Hard coded
         "did:web:api.bsky.chat".parse().unwrap(),
         AtprotoServiceType::BskyChat,
       )

@@ -77,7 +77,7 @@ impl BskyReq for Request {
         cursor: None,
         filter: Some("posts_and_author_threads".to_string()), // TODO: Has to be changed to `posts_with_replies` on opt in
         // Only last post needed, but we get two because of this: https://github.com/bluesky-social/atproto/issues/2795
-        #[allow(clippy::unwrap_used)] // Safe because it's a constant
+        #[expect(clippy::unwrap_used)] // Safe because it's a constant
         limit: Some(2.try_into().unwrap()),
       },
       extra_data: Ipld::Null,
