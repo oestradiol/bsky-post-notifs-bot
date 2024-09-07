@@ -155,8 +155,8 @@ trait BskyReq {
   type ReqOutput;
   type ReqError: std::fmt::Debug;
   type HandledError: std::error::Error + std::fmt::Debug;
-  const PER_REQ_MAX_RETRIES: u8 = 5;
-  const ON_FAILURE_DELAY: u64 = 100; // 100 Milliseconds
+  const PER_REQ_MAX_RETRIES: u8 = 3;
+  const ON_FAILURE_DELAY: u64 = 150; // 150 Milliseconds
 
   fn get_params(self) -> Self::ReqParams;
   async fn request(
@@ -177,14 +177,12 @@ trait BskyReq {
     let params = Self::get_params(self);
     loop {
       match Self::attempt(params.clone()).await {
-        Err(err) => {
-          event!(Level::DEBUG, "Failed to issue request, auth error");
+        Err(Some(Error::Api | Error::BskyBug) | None) => {
+          event!(Level::DEBUG, "Failed to issue request");
 
           if failed_attempts < Self::PER_REQ_MAX_RETRIES {
             failed_attempts += 1;
             sleep(Duration::from_millis(Self::ON_FAILURE_DELAY)).await;
-          } else if let Some(err) = err {
-            return Err(err);
           } else {
             // Shouldn't ever really reach this, after a 401, the agent should be revalidated successfully
             // or else the program will have stopped. But we leave this here just in case ig?
@@ -193,6 +191,7 @@ trait BskyReq {
 
           continue;
         }
+        Err(Some(err)) => return Err(err),
         Ok(output) => return Ok(output),
       }
     }

@@ -1,6 +1,5 @@
 use std::collections::HashSet;
 
-use tracing::{event, Level};
 use utils::Did;
 
 use crate::{watched_user::Watcher, AppTransaction, Loadable};
@@ -29,9 +28,6 @@ pub async fn create(
   .execute(&mut **tx)
   .await?
   .rows_affected();
-
-  // TODO: check, this should be one!!
-  event!(Level::WARN, "rows affected: {}", rows);
 
   Ok(if rows > 0 { Some(()) } else { None })
 }

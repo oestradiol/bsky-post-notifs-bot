@@ -12,7 +12,7 @@ pub async fn act<S: BuildHasher + Send>(watcher: Did, watched_users: HashSet<Did
     .into_iter()
     .map(|w| Arc::<str>::from(String::from(w)))
   {
-    // TODO: Actually implement with_replies feature
+    // TODO: Actually implement with_replies feature: with_replies
     if watched_user::watch(watched_did.clone(), watcher.clone(), false).await {
       tokio::spawn(jobs::user_watcher::new(watched_did.clone()));
       tokio::spawn(async {
