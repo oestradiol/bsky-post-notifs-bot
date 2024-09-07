@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM \"WatchedUser\" WHERE did = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "4348fa7259474407ca99c295ecf3a4b47b29df1ed6408f3a7ff5e1425209e014"
+}

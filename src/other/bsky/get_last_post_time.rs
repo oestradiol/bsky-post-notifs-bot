@@ -37,7 +37,7 @@ pub async fn act(actor: AtIdentifier) -> Result<DateTime<Utc>, super::Error<Erro
     .map_err(|_| {
       event!(
         Level::WARN,
-        "(Notice) Received invalid timestamp for createdAt: {:?}",
+        "(Notice) Received invalid timestamp for cursor: {:?}",
         time_str
       );
       super::Error::BskyBug

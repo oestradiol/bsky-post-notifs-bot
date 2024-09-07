@@ -17,8 +17,6 @@ pub async fn begin() {
 
   let mut failures_in_a_row = 0;
   loop {
-    event!(Level::DEBUG, "Checking for new dms...");
-
     let before_task = Utc::now();
     match get_unread_convos::act().await {
       Err(bsky::Error::Api) => {

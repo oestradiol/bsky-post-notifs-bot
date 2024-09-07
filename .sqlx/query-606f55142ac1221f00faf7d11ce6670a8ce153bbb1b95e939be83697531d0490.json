@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE \"WatchedUser\" SET watchers = $1 WHERE did = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "606f55142ac1221f00faf7d11ce6670a8ce153bbb1b95e939be83697531d0490"
+}

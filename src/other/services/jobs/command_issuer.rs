@@ -13,8 +13,6 @@ pub async fn begin() {
   event!(Level::INFO, "Now handling pending messages.");
 
   loop {
-    event!(Level::DEBUG, "Checking for new pending messages...");
-
     PENDING_MESSAGES
       .write()
       .await

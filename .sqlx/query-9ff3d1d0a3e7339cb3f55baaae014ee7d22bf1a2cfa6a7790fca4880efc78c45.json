@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO \"WatchedUser\" (did, watchers) VALUES ($1, $2)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "9ff3d1d0a3e7339cb3f55baaae014ee7d22bf1a2cfa6a7790fca4880efc78c45"
+}

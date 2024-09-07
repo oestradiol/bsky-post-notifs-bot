@@ -177,24 +177,35 @@ trait BskyReq {
     let params = Self::get_params(self);
     loop {
       match Self::attempt(params.clone()).await {
-        Err(Some(Error::Api | Error::BskyBug) | None) => {
-          event!(Level::DEBUG, "Failed to issue request");
-
-          if failed_attempts < Self::PER_REQ_MAX_RETRIES {
-            failed_attempts += 1;
-            sleep(Duration::from_millis(Self::ON_FAILURE_DELAY)).await;
-          } else {
-            // Shouldn't ever really reach this, after a 401, the agent should be revalidated successfully
-            // or else the program will have stopped. But we leave this here just in case ig?
+        Err(Some(Error::Api) | None) => {
+          if !Self::handle_error(&mut failed_attempts).await {
             return Err(Error::Api);
           }
-
+          continue;
+        }
+        Err(Some(Error::BskyBug)) => {
+          if !Self::handle_error(&mut failed_attempts).await {
+            return Err(Error::BskyBug);
+          }
           continue;
         }
         Err(Some(err)) => return Err(err),
         Ok(output) => return Ok(output),
       }
     }
+  }
+
+  // Returns true if the error was handled, false if it was not
+  async fn handle_error(failed_attempts: &mut u8) -> bool {
+    if *failed_attempts < Self::PER_REQ_MAX_RETRIES {
+      *failed_attempts += 1;
+      sleep(Duration::from_millis(Self::ON_FAILURE_DELAY)).await;
+    } else {
+      // Shouldn't ever really reach this, after a 401, the agent should be revalidated successfully
+      // or else the program will have stopped. But we leave this here just in case ig?
+      return false;
+    }
+    true
   }
 
   async fn attempt(

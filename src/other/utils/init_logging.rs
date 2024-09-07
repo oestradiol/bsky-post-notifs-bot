@@ -27,7 +27,9 @@ pub async fn init_logging() -> (WorkerGuard, WorkerGuard) {
   let (non_blocking_file, guard0) = tracing_appender::non_blocking(file_appender);
   let (non_blocking_stdout, guard1) = tracing_appender::non_blocking(std::io::stdout());
 
-  let file_log = tracing_subscriber::fmt::layer().with_writer(non_blocking_file);
+  let file_log = tracing_subscriber::fmt::layer()
+    .compact()
+    .with_writer(non_blocking_file);
   let stdout_log = tracing_subscriber::fmt::layer()
     .pretty()
     .with_writer(non_blocking_stdout);

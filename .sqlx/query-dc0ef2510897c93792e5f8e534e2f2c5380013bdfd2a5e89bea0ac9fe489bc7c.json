@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT watchers FROM \"WatchedUser\" WHERE did = $1",
+  "describe": {
+    "columns": [
+      {
+        "name": "watchers",
+        "ordinal": 0,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "dc0ef2510897c93792e5f8e534e2f2c5380013bdfd2a5e89bea0ac9fe489bc7c"
+}

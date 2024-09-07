@@ -33,7 +33,7 @@ pub trait Command: Debug {
   where
     Self: Sized + Send + 'static,
   {
-    Box::new(self) as Box<dyn Command + Send>
+    Box::new(self)
   }
 }
 pub trait Parseable: Command {

@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT * FROM \"WatchedUser\"",
+  "describe": {
+    "columns": [
+      {
+        "name": "did",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "watchers",
+        "ordinal": 1,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "168f6621cca961de8ad6e5a4318b8a1bd7633a6b80ff14dd5da1202b9f11e209"
+}

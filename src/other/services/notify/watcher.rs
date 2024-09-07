@@ -14,7 +14,7 @@ pub async fn many(
   watchers: Option<HashSet<Watcher, RandomState>>,
   is_post: bool,
 ) {
-  event!(Level::INFO, "Now notifying watchers of {watched_did}.");
+  event!(Level::DEBUG, "Now notifying watchers of {watched_did}.");
   let watchers = if watchers.is_some() {
     watchers
   } else {

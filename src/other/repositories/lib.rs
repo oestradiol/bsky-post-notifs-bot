@@ -47,7 +47,7 @@ impl Database {
     } else {
       event!(Level::INFO, "Creating database: {}", *DATABASE_URL);
       match Sqlite::create_database(*DATABASE_URL).await {
-        Ok(()) => event!(Level::DEBUG, "Success!"),
+        Ok(()) => event!(Level::DEBUG, "Successfully created new DB file!"),
         Err(e) => panic!("Failed to create db! Error: {e}"),
       }
     }

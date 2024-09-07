@@ -37,8 +37,6 @@ pub async fn new(watched_did: Did) {
       break;
     }
 
-    event!(Level::DEBUG, "Checking for new posts from {watched_did}...");
-
     let before_task = Utc::now();
     match get_last_post_time::act(watched_did_as_at.clone()).await {
       Err(bsky::Error::Api) => {
@@ -69,7 +67,6 @@ pub async fn new(watched_did: Did) {
         event!(Level::DEBUG, "API returned zero posts for {watched_did}.");
       }
       Ok(output) => {
-        event!(Level::DEBUG, "{watched_did}'s last post at: {:?}.", output);
         if output > last_notified_watchers {
           last_notified_watchers = output;
           tokio::spawn(notify::watcher::many(watched_did.clone(), None, true));

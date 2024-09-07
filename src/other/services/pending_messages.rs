@@ -48,9 +48,9 @@ pub async fn process(convo_id: String, data: MessageViewData) -> commands::Resul
       .await
       .map_err(|e| {
         event!(
-      Level::WARN,
-      "(Notice) Failed to send command message. Command completed successfully, however. Error: {e}"
-    );
+          Level::WARN,
+          "(Notice) Failed to send command message. Command completed successfully, however. Error: {e}"
+        );
       }),
   );
   Ok(())
