@@ -15,7 +15,11 @@ pub async fn act<S: BuildHasher + Send>(watcher: Did, watched_users: HashSet<Did
     .into_iter()
     .map(|w| Arc::<str>::from(String::from(w)))
   {
-    if watched_user::unwatch(watched_did.clone(), watcher.clone()).await == Some(true) {
+    if let Some(true) = watched_user::unwatch(watched_did.clone(), watcher.clone()).await {
+      event!(
+        Level::INFO,
+        "No longer watching user. DID: {watched_did}"
+      );
       tokio::spawn(async {
         notify::watched_user::no_longer(watched_did)
           .await

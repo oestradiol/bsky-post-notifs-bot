@@ -3,7 +3,7 @@
 //! 
 //! There are other environment variables that are only used once:
 //! - `LOG_SEVERITY` - Severity level for the log file and stdout.
-//!   * Defaults to `WARN`. Used at `utils::init_logging`.
+//!   * Defaults to `INFO`. Used at `utils::init_logging`.
 //! - `LOG_DIRECTORY` - The directory where the log files are stored.
 //!   * Defaults to `/var/log/post_watcher`. Used at `utils::init_logging`.
 //! - `DATABASE_URL` - The URL to the database.

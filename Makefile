@@ -9,9 +9,6 @@ build:
 	cp target/release/posts-notifs dist/app
 	cp -n .env dist/.env
 
-test:
-	cargo test
-
 lint:
 	cargo clippy --all-targets --all-features --color always
 
