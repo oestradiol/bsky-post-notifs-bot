@@ -13,6 +13,8 @@ use crate::BskyReq;
 #[derive(ThisError, Debug)]
 pub enum Error {}
 
+/// Gets a batch of profiles from the Bsky API.
+///
 /// # Errors
 ///
 /// Will return any unhandled request errors.

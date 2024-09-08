@@ -27,8 +27,13 @@ use watch::Watch;
 pub type Result<T> = core::result::Result<T, bsky::Error<anyhow::Error>>;
 pub type PinnedFut<T> = Pin<Box<dyn Future<Output = T> + Send + 'static>>;
 
+/// A trait for commands that can be processed by the bot.
 pub trait Command: Debug {
+  /// This implementation should return a boxed future, that will be handled.
+  /// That future should return a message that will be sent to the user.
   fn process(self: Box<Self>, sender_id: Did) -> PinnedFut<Result<String>>;
+  /// This implementation should return a boxed version of the command,
+  /// so that it can be dynamically dispatched.
   fn box_dyn(self) -> Box<dyn Command + Send>
   where
     Self: Sized + Send + 'static,
@@ -36,15 +41,19 @@ pub trait Command: Debug {
     Box::new(self)
   }
 }
+/// A trait for commands that can be parsed from facets.
 pub trait Parseable: Command {
+  /// This implementation should parse the facets and return a `Result` with the parsed command.
   async fn parse(facets: Option<Vec<Main>>) -> Result<Self>
   where
     Self: Sized;
 }
 
+/// Parses a command from a message.
+/// 
 /// # Errors
 ///
-/// Watch and Unwatch might fail to resolve handles and dids
+/// Watch and Unwatch might fail to resolve handles and DIDs.
 pub async fn parse(
   text: &str,
   facets: Option<Vec<Object<MainData>>>,
@@ -72,6 +81,10 @@ pub async fn parse(
   Ok(res)
 }
 
+/// Auxiliary function to extract mentions from facets.
+/// 
+/// # Returns
+/// A vector of `AtIdentifier`s.
 fn extract_mentions(facets: Vec<Main>) -> Vec<AtIdentifier> {
   facets
     .into_iter()

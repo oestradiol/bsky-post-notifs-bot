@@ -10,6 +10,15 @@ use environment::{BOT_PASSWORD, BOT_USERNAME, WORKSPACE_DIR};
 use tracing::{event, Level};
 use utils::Did;
 
+/// Attempt to login to the Bsky API.
+/// First, it will try to load the agent from a config file.
+/// Then, if that fails, it will attempt to login and create a new session.
+/// 
+/// # Returns
+/// A tuple of the Bsky agent and the DID of the logged in user.
+/// 
+/// # Errors
+/// If the login fails.
 pub async fn act() -> Result<(BskyAgent, Did), BskyError> {
   let path = (*WORKSPACE_DIR).join(format!("{}-config.json", *BOT_USERNAME));
   let file_store = FileStore::new(path);
@@ -20,6 +29,7 @@ pub async fn act() -> Result<(BskyAgent, Did), BskyError> {
   }
 }
 
+/// Attempt to login to the Bsky API and saves the session to a config file.
 async fn do_auth(file_store: &FileStore) -> Result<(BskyAgent, Did), BskyError> {
   let agent = BskyAgent::builder().build().await?;
   agent.login(*BOT_USERNAME, *BOT_PASSWORD).await?;
@@ -30,6 +40,7 @@ async fn do_auth(file_store: &FileStore) -> Result<(BskyAgent, Did), BskyError> 
   Ok((agent, Arc::from(String::from(did))))
 }
 
+/// Attempt to load the Bsky agent from a config file, if it exists.
 async fn try_load_from_config(file_store: &FileStore) -> Result<(BskyAgent, Did), BskyError> {
   if let Ok(config) = Config::load(file_store).await {
     #[expect(clippy::unwrap_used)] // Restored from session
@@ -46,6 +57,8 @@ async fn try_load_from_config(file_store: &FileStore) -> Result<(BskyAgent, Did)
   }
 }
 
+/// Handle any errors from the Bsky API.
+/// In case it returns that the token is invalid, it will attempt to re-authenticate.
 async fn handle_bsky_error(
   file_store: &FileStore,
   e: BskyError,

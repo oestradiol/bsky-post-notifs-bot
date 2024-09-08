@@ -14,6 +14,8 @@ use crate::BskyReq;
 #[derive(ThisError, Debug)]
 pub enum Error {}
 
+/// Get all unread conversations.
+/// 
 /// # Errors
 ///
 /// Will return any unhandled request errors.
@@ -64,7 +66,7 @@ impl BskyReq for Request {
     Bsky::get_agent()
       .await
       .api_with_proxy(
-        #[expect(clippy::unwrap_used)] // Hard coded
+        #[expect(clippy::unwrap_used)] // Safe because it's a constant
         "did:web:api.bsky.chat".parse().unwrap(),
         AtprotoServiceType::BskyChat,
       )

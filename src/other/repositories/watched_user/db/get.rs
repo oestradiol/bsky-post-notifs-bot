@@ -4,6 +4,8 @@ use utils::Did;
 
 use crate::{watched_user::watching::Watcher, AppTransaction};
 
+/// Returns a set of all watchers of a user.
+///
 /// # Errors
 ///
 /// Returns an error if the query fails.

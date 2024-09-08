@@ -89,7 +89,7 @@ impl Bsky {
     bsky.agent_id = Some(did);
   }
 
-  #[expect(clippy::missing_panics_doc)]
+  #[expect(clippy::missing_panics_doc)] // False positive because of unwrap
   pub async fn get_agent() -> Arc<BskyAgent> {
     let bsky = BSKY.get().await.read().await;
     match &bsky.agent {
@@ -111,7 +111,7 @@ impl Bsky {
     }
   }
 
-  #[expect(clippy::missing_panics_doc)]
+  #[expect(clippy::missing_panics_doc)] // False positive because of unwrap
   pub async fn get_agent_did() -> Did {
     let bsky = BSKY.get().await.read().await;
     match &bsky.agent_id {
@@ -164,12 +164,23 @@ trait BskyReq {
   ) -> Result<Object<Self::ReqOutput>, atrium_xrpc::Error<Self::ReqError>>;
   fn handle_xrpc_custom_error(err: Self::ReqError) -> Option<Error<Self::HandledError>>;
 
+  /// This method attempts to issue the request and handle any errors that might occur.
+  /// It retries the request if it fails, up to `PER_REQ_MAX_RETRIES` times.
+  /// This is done to prevent singular failures to completely run the workflow of our bot.
+  /// It also handles authentication errors, by reauthenticating.
+  /// At the end, if everything worked as expected, it returns the output of the request.
+  /// 
+  /// # Errors
+  /// Any expected errors that should be treated somewhere else, or (rarely) any persistent
+  /// errors that could not be handled as an `Api` error, or a `BskyBug` error in case it's
+  /// a bug in the Bluesky API.
   async fn act(self) -> Result<Self::ReqOutput, Error<Self::HandledError>>
   where
     Self: Sized,
   {
     // Commented out until I get rate limited at least once
-    // Unlikely to ever happen given the ping
+    // Unlikely to ever happen given the ping.
+    // TODO: Analyse how the ATProto APIs handle rate limiting and implement a better solution.
     // minimum_delay().await;
 
     let mut failed_attempts = 0;
@@ -195,7 +206,7 @@ trait BskyReq {
     }
   }
 
-  // Returns true if the error was handled, false if it was not
+  // Returns true if the error was handled, false if it was not possible to.
   async fn handle_error(failed_attempts: &mut u8) -> bool {
     if *failed_attempts < Self::PER_REQ_MAX_RETRIES {
       *failed_attempts += 1;
@@ -208,6 +219,11 @@ trait BskyReq {
     true
   }
 
+  /// Method for processing all kinds of error that might happen in the client or the request.
+  /// 
+  /// # Returns
+  /// `Some(Error)` if the error was handled, `None` if the session has expired so that it can be
+  /// re-issued.
   async fn attempt(
     params: Self::ReqParams,
   ) -> Result<Self::ReqOutput, Option<Error<Self::HandledError>>> {

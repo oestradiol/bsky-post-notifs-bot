@@ -6,6 +6,10 @@ use tracing::{event, Level};
 
 use crate::{jobs, notify};
 
+/// Method for watching new users.
+/// Will watch the user by adding the watched user (if not yet watched) and their
+/// watcher to the memory repository and database.
+/// Then, it will notify the watched user that they are being watched and start the job.
 pub async fn act<S: BuildHasher + Send>(watcher: Did, watched_users: HashSet<Did, S>) {
   let watcher = Arc::<str>::from(String::from(watcher));
   for watched_did in watched_users

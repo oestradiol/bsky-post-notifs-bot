@@ -6,6 +6,7 @@ use atrium_api::{
 };
 use bsky::get_profiles;
 
+/// Auxiliary method to resolve a list of actors into both their handles and DIDs.
 pub async fn act(
   actors: Vec<AtIdentifier>,
 ) -> Result<(HashSet<Did>, HashSet<Handle>), bsky::Error<get_profiles::Error>> {

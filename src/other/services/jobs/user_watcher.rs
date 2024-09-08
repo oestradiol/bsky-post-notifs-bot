@@ -12,6 +12,7 @@ use utils::{handle_api_failure, Did};
 
 use crate::{notify, user_unwatched};
 
+/// Method for initializing the watching of all users found in the database.
 pub async fn begin() {
   let watching = watched_user::get_watching().await;
 
@@ -23,7 +24,14 @@ pub async fn begin() {
 }
 
 static WATCH_DELAY: i64 = 15; // 15 Seconds
-#[expect(clippy::missing_panics_doc)] // False positive
+/// Method for watching a user's posts.
+/// Will fetch the last post time of the user from time to time (`WATCH_DELAY`),
+/// and then notify the watchers if a new post is found.
+/// Has a basic compensation mechanism that tries to, on average and as much as possible,
+/// wait for exactly `WATCH_DELAY` seconds between each loop.
+/// Also has a mechanism to handle persistent API failures, cancelling the job if the
+/// error appears to be unrecoverable, logging the error.
+#[expect(clippy::missing_panics_doc)] // False positive because of unwrap
 pub async fn new(watched_did: Did) {
   let watched_did_as_at = watched_did.parse::<AtIdentifier>().unwrap();
   let mut failures_in_a_row = 0;

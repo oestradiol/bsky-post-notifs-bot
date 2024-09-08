@@ -5,6 +5,10 @@ use atrium_api::{
 use bsky::{get_user_convo, send_message};
 use utils::Did;
 
+/// Notify a user that they are no longer being watched.
+/// 
+/// # Errors
+/// Propagates any errors that occur during the process of contacting the API.
 pub async fn no_longer(watched_did: Did) -> Result<(), anyhow::Error> {
   #[expect(clippy::unwrap_used)] // Did from DB so always valid
   let watched_did = watched_did.parse().unwrap();
@@ -26,6 +30,10 @@ pub async fn no_longer(watched_did: Did) -> Result<(), anyhow::Error> {
   Ok(())
 }
 
+/// Notify a user that they are now being watched.
+/// 
+/// # Errors
+/// Propagates any errors that occur during the process of contacting the API.
 pub async fn now_watched(watched_did: Did) -> Result<(), anyhow::Error> {
   #[expect(clippy::unwrap_used)] // Did from DB so always valid
   let watched_did = watched_did.parse().unwrap();

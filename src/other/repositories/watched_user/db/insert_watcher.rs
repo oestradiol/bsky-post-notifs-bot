@@ -4,6 +4,8 @@ use crate::{watched_user::watching::Watcher, AppTransaction, Loadable};
 
 use super::get;
 
+/// Inserts a watcher to a watched user.
+///
 /// # Errors
 ///
 /// Returns an error if the query or serialization fails.

@@ -10,7 +10,5 @@ pub use handle_api_failure::*;
 mod handle_union;
 pub use handle_union::*;
 
-pub mod constants;
-
 use std::sync::Arc;
 pub type Did = Arc<str>;

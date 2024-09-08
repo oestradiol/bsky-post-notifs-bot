@@ -1,3 +1,12 @@
+//! # `Watch` command.
+//! 
+//! Implements the `Command` trait and the `Parseable` trait.
+//! Is parsed by extracting the mentions from the facets found in the message,
+//! and resolving all of them to corresponding DIDs and Handles.
+//! 
+//! - DIDs are used for unwatching users in the `Command` trait.
+//! - Handles are used for notifying the user about the users that were successfully watched.
+
 use std::collections::HashSet;
 
 use atrium_api::{

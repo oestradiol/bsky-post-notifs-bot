@@ -1,3 +1,10 @@
+//! # `Help` command.
+//! 
+//! Implements the `Command` trait. Does not implement the `Parseable` trait,
+//! as there is no relevant information in the command that is used here.
+//! 
+//! Returns a hard-coded message to the user indicating all signatures for each command.
+
 use atrium_api::types::string::Did;
 
 use super::{Command, PinnedFut, Result};

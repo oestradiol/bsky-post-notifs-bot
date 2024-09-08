@@ -4,6 +4,8 @@ use crate::{watched_user::watching::Watcher, AppTransaction, Loadable};
 
 use super::get;
 
+/// Removes a watcher from a user.
+/// 
 /// # Errors
 ///
 /// Returns an error if the queries or serialization fails.

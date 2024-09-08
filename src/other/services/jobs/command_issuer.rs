@@ -8,7 +8,17 @@ use crate::{
 use tokio::time::sleep;
 use tracing::{event, Level};
 
-#[expect(clippy::missing_panics_doc)]
+/// Method for handling all the new commands that were previously cached by
+/// the bot (check `command_listener`).
+/// Will fetch the last unread convos from time to time (`WATCH_DELAY`),
+/// and then handle each message accordingly.
+/// Command failure will be logged, but the bot will not notify the user about it,
+/// after all, if the command failed it's because it wasn't able to notify the user
+/// to begin with.
+/// 
+/// Note: This job will only ever stop if `command_listener` job stop, given that
+/// they're both being used in a tokio::select! block.
+#[expect(clippy::missing_panics_doc)] // False positive because of unwrap
 pub async fn begin() {
   event!(Level::INFO, "Now handling pending messages.");
 

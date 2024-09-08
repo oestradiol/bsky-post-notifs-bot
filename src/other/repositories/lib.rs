@@ -11,12 +11,11 @@ use tracing::{event, Level};
 use environment::{owned_var_or, owned_var_or_else};
 use tokio::time;
 
-/// # Loadable<T>
 /// Represents the type of a T that can be loaded from the
 /// database, where the query can either fail, resolve to None
 /// or resolve to Some(T).
 ///
-/// ## Variants
+/// # Variants
 /// - Err(e)           query failed
 /// - Ok(None)         T not found
 /// - Ok(Some(T))      T found
@@ -27,13 +26,18 @@ pub(crate) type Loadable<T> = sqlx::Result<Option<T>>;
 pub(crate) type AppTransaction = Transaction<'static, Sqlite>;
 
 lazy_static! {
+  /// Current DB connection pool
   static ref DB: AsyncOnce<Database> = AsyncOnce::new(Database::init());
 }
 
+/// The database connection pool.
 pub struct Database {
   pool: SqlitePool,
 }
 impl Database {
+  /// Initiallizes by checking if the database file exists, creating it if it
+  /// doesn't, and then connecting to it, initializing the connection pool.
+  /// 
   /// # Panics
   ///
   /// Panics when connection pool fails to initialize.
@@ -65,10 +69,13 @@ impl Database {
     Self { pool }
   }
 
+  /// Method to get a reference to the database connection pool.
   pub async fn get_pool() -> &'static SqlitePool {
     &DB.get().await.pool
   }
 
+  /// Method to get a transaction from the database connection pool.
+  /// 
   /// # Errors
   ///
   /// Fails when a transaction cannot be started.
@@ -76,6 +83,7 @@ impl Database {
     DB.get().await.pool.begin().await
   }
 
+  /// Method for gracefully disconnecting from the database.
   #[expect(clippy::redundant_pub_crate)] // Select macro propagates this
   pub async fn disconnect() {
     let db_countdown = time::sleep(Duration::from_secs(15));

@@ -19,13 +19,20 @@ pub enum Error {
   UserOptedOut,
 }
 
+// TODO: When implementing the `with_replies` feature, fetch from now *until* last
+//       cursor (using the cursor would return posts before that), and then implement
+//       the `posts_with_replies` filter - returning `is_replies_only`.
+//       You can use that to notify only `watch_replies` users and know if should notify both.
+
+/// Method to get the last post time of a user.
+/// 
 /// # Errors
 ///
-/// Will return any unhandled request errors.
+/// Any unhandled request errors are passed up to the caller.
 /// 
-/// TODO: Fetch from now *until* last cursor (using the cursor would return posts before that)
-///       And then implement `posts_with_replies` filter - returning "is_replies_only"
-///       You can use that to notify only `watch_replies` users and know if should notify both.
+/// # Returns
+/// 
+/// The last post time of the user in the UTC timezone.
 pub async fn act(actor: AtIdentifier) -> Result<DateTime<Utc>, super::Error<Error>> {
   let time_str = Request { actor }
     .act()

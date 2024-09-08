@@ -22,6 +22,9 @@ pub enum Error {
   AtriumBug,
 }
 
+/// Method to send a message to a conversation.
+/// Optionally parses any rich text in the message.
+/// 
 /// # Errors
 ///
 /// Will return any unhandled request errors.
@@ -76,7 +79,7 @@ impl BskyReq for Request {
     Bsky::get_agent()
       .await
       .api_with_proxy(
-        #[expect(clippy::unwrap_used)] // Hard coded
+        #[expect(clippy::unwrap_used)] // Safe because it's a constant
         "did:web:api.bsky.chat".parse().unwrap(),
         AtprotoServiceType::BskyChat,
       )
@@ -94,6 +97,10 @@ impl BskyReq for Request {
   }
 }
 
+/// Handle any errors from the RichText API.
+/// 
+/// # Errors
+/// Either an `Api` error or an `AtriumBug` representing each case.
 #[expect(clippy::cognitive_complexity)]
 fn handle_rich_text_error(e: BskyError) -> super::Error<Error> {
   match e {

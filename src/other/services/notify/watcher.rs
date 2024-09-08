@@ -9,6 +9,7 @@ use repositories::watched_user::{self, Watcher};
 use tracing::{event, Level};
 use utils::Did;
 
+/// Notify the watchers of a watched user.
 pub async fn many(
   watched_did: Did,
   watchers: Option<HashSet<Watcher, RandomState>>,
@@ -36,6 +37,10 @@ pub async fn many(
   }
 }
 
+/// Notify a single watcher of a watched user.
+/// 
+/// # Errors
+/// Propagates any errors that occur during the process of contacting the API.
 async fn act(watcher: Did, watched_did: Did, is_post: bool) -> Result<(), anyhow::Error> {
   #[expect(clippy::unwrap_used)] // Did from job so always valid
   let handle = get_profile::act(watched_did.parse().unwrap()).await?.handle;

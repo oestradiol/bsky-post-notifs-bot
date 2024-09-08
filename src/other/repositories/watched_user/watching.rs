@@ -12,8 +12,12 @@ use utils::Did;
 use crate::Database;
 
 lazy_static! {
+  /// Current state of the memory repository.
   static ref STATE: AsyncOnce<Watching> = AsyncOnce::new(Watching::init());
 }
+/// Memory repository for watched users.
+/// Is used to keep track of which users are being watched by which users.
+/// A wrapper around an `RwLock<HashMap<Did, Watchers>>`.
 pub struct Watching(RwLock<HashMap<Did, Watchers>>);
 impl Watching {
   async fn init() -> Self {
@@ -91,6 +95,8 @@ impl Watching {
   }
 }
 
+/// A set of watchers for a watched user.
+/// A wrapper around an `RwLock<HashSet<Watcher>>`.
 struct Watchers(RwLock<HashSet<Watcher>>);
 impl Watchers {
   fn new() -> Self {
@@ -109,8 +115,8 @@ impl Watchers {
     let mut watchers_mut = self.0.write().await;
     watchers_mut.remove(&Watcher {
       did: watcher,
-      watch_replies: false,
-    }); // watch_replies not used in the hash
+      watch_replies: false, // watch_replies not used in the hash
+    });
     drop(watchers_mut);
     self.0.read().await.is_empty()
   }
@@ -129,6 +135,7 @@ impl From<HashSet<Watcher>> for Watchers {
   }
 }
 
+/// A user watching another user.
 #[derive(Debug, Clone, Serialize, Deserialize, Eq)]
 pub struct Watcher {
   #[serde(rename = "0")]
@@ -147,6 +154,11 @@ impl PartialEq for Watcher {
   }
 }
 
+/// A method only used once at the initialization of the program to get the initial state of watched users
+/// for the memory repository. Retrieves all watched users from the database.
+/// 
+/// # Errors
+/// When the query fails.
 async fn get_watching() -> sqlx::Result<HashMap<Did, Watchers>> {
   let mut tx = Database::get_tx().await?;
   let watched_users = sqlx::query!(r#"SELECT * FROM "WatchedUser""#)

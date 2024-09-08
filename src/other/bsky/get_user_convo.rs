@@ -14,10 +14,12 @@ use crate::BskyReq;
 #[derive(ThisError, Debug)]
 pub enum Error {}
 
+/// Method for getting a conversation between the bot and a user.
+/// 
 /// # Errors
 ///
 /// Will return any unhandled request errors.
-#[expect(clippy::missing_panics_doc)]
+#[expect(clippy::missing_panics_doc)] // False positive because of unwrap
 pub async fn act(user_id: Did) -> Result<get_convo_for_members::OutputData, super::Error<Error>> {
   #[expect(clippy::unwrap_used)] // Safe, gotten from agent
   let our_did = Did::new(Bsky::get_agent_did().await.to_string()).unwrap();
@@ -52,7 +54,7 @@ impl BskyReq for Request {
     Bsky::get_agent()
       .await
       .api_with_proxy(
-        #[expect(clippy::unwrap_used)] // Hard coded
+        #[expect(clippy::unwrap_used)] // Safe because it's a constant
         "did:web:api.bsky.chat".parse().unwrap(),
         AtprotoServiceType::BskyChat,
       )

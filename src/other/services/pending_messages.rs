@@ -12,10 +12,12 @@ use tracing::{event, Level};
 use crate::commands;
 
 lazy_static! {
+  /// Pending messages to be processed.
   pub static ref PENDING_MESSAGES: RwLock<HashMap<String, MessageViewData>> =
     RwLock::new(HashMap::new());
 }
 
+/// Adds a message to the pending messages for later processing.
 pub async fn add(convo_id: String, data: MessageViewData) {
   let agent_did = Bsky::get_agent_did().await;
   if *agent_did == *data.sender.data.did {
@@ -26,6 +28,11 @@ pub async fn add(convo_id: String, data: MessageViewData) {
   PENDING_MESSAGES.write().await.insert(convo_id, data);
 }
 
+/// Processes a pending message by parsing the command then executing it.
+/// If the command is successful, it will send the message back to the user.
+/// 
+/// # Errors
+/// Propagates any errors that occur during the process of contacting the API.
 pub async fn process(convo_id: String, data: MessageViewData) -> commands::Result<()> {
   let MessageViewData {
     facets,

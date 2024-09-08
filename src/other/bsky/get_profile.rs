@@ -13,6 +13,8 @@ use crate::BskyReq;
 #[derive(ThisError, Debug)]
 pub enum Error {}
 
+/// Get the profile of a specific user.
+/// 
 /// # Errors
 ///
 /// Will return any unhandled request errors.

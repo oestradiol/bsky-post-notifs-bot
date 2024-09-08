@@ -17,15 +17,20 @@ use crate::BskyReq;
 #[derive(ThisError, Debug)]
 pub enum Error {}
 
+/// Method to retrieve the messages from a conversation.
+/// 
 /// # Errors
 ///
 /// Will return any unhandled request errors.
-#[expect(clippy::missing_panics_doc)]
+/// 
+/// # Returns
+/// A vector of messages from the conversation.
+#[expect(clippy::missing_panics_doc)] // False positive because of unwrap
 pub async fn act(
   convo_id: String,
   count: NonZeroU64,
 ) -> Result<Vec<get_messages::OutputMessagesItem>, super::Error<Error>> {
-  #[expect(clippy::unwrap_used)] // Hard coded
+  #[expect(clippy::unwrap_used)] // Safe because it's a constant
   let mut batches: Vec<LimitedNonZeroU8<100>> =
     vec![100.try_into().unwrap(); (count.get() / 100) as usize];
   let remainder = (count.get() % 100) as u8;
@@ -84,7 +89,7 @@ impl BskyReq for Request {
     Bsky::get_agent()
       .await
       .api_with_proxy(
-        #[expect(clippy::unwrap_used)] // Hard coded
+        #[expect(clippy::unwrap_used)] // Safe because it's a constant
         "did:web:api.bsky.chat".parse().unwrap(),
         AtprotoServiceType::BskyChat,
       )

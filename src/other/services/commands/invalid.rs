@@ -1,3 +1,11 @@
+//! # `Invalid` command.
+//! 
+//! Implements the `Command` trait. Does not implement the `Parseable` trait,
+//! as it is not meant to be parsed, but rather to be used as a fallback for
+//! invalid commands.
+//! Returns a hard-coded message to the user indicating that the command is invalid.
+// TODO: Possibly make a configuration file for the message?
+
 use atrium_api::types::string::Did;
 
 use super::{Command, PinnedFut, Result};

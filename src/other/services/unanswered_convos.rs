@@ -15,6 +15,8 @@ use utils::handle_union;
 
 use crate::pending_messages::add;
 
+/// Method to handle unanswered conversations.
+/// Receives a vector of conversations and handles them with the methods defined below.
 pub async fn handle_many(dms: Vec<ConvoViewData>) {
   let mut set = JoinSet::new();
   for data in dms {
@@ -27,6 +29,13 @@ pub async fn handle_many(dms: Vec<ConvoViewData>) {
   drop(set.join_all().await);
 }
 
+/// Method to handle a single unanswered conversation. Tries to read the last message
+/// message initially. If that fails, it then tries to fetch all of the unread messages
+/// and handle them accordingly. Lastly, it tries to mark the conversation as read and
+/// add the message to the pending messages for later processing.
+/// 
+/// # Errors
+/// Propagates any errors that occur during the process of contacting the API.
 async fn handle(convo: ConvoViewData) -> Result<(), Error<anyhow::Error>> {
   let ConvoViewData {
     id: convo_id,
@@ -50,8 +59,7 @@ async fn handle(convo: ConvoViewData) -> Result<(), Error<anyhow::Error>> {
       }
     }
   } else {
-    #[expect(clippy::unwrap_used)]
-    // NonZeroU64, handle_unanswered_convo should never be called with less than 1
+    #[expect(clippy::unwrap_used)] // NonZeroU64, never called with less than 1
     let as_non_zero = TryInto::<u64>::try_into(unread_count)
       .unwrap()
       .try_into()
@@ -77,6 +85,11 @@ async fn handle(convo: ConvoViewData) -> Result<(), Error<anyhow::Error>> {
   Ok(())
 }
 
+/// Method to fetch and handle all unread messages in a conversation, in case
+/// the last message was not able to be read.
+/// 
+/// # Errors
+/// Propagates any errors that occur during the process of contacting the API.
 async fn fetch_and_handle_unread(
   convo_id: String,
   unread_count: NonZeroU64,

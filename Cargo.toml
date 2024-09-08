@@ -15,8 +15,7 @@ members = [
 # Lint groups for tracking:
 # https://doc.rust-lang.org/rustc/lints/groups.html
 # https://rust-lang.github.io/rust-clippy/master/index.html
-# Also, don't use expect() when this comes out:
-# https://www.reddit.com/r/rust/comments/1enkpxh/pro_tip_use_expectunused_upcoming_181_release/
+# Also, use expect() instead of allow()
 
 [workspace.lints.rust]
 ### Lint Groups

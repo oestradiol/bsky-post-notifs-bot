@@ -2,6 +2,8 @@ use repositories::Database;
 use tokio::signal;
 use tracing::{event, Level};
 
+/// Shutdown routines before the bot exits.
+/// Currently only gracefully disconnects from the database.
 async fn before_shutdown() {
   event!(
     Level::INFO,
@@ -10,11 +12,14 @@ async fn before_shutdown() {
   Database::disconnect().await;
 }
 
+/// Routine for gracefully handling the bot shutdown.
 pub async fn with_graceful_shutdown() {
   shutdown_signal().await;
   before_shutdown().await;
 }
 
+/// Installs signal handlers for SIGTERM/SIGINT.
+/// 
 /// # Panics
 ///
 /// Will panic if fails to install any of the signal handlers.

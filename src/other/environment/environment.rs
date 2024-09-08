@@ -1,15 +1,15 @@
-/// In this file, we define the environment variables that are used multiple times 
-/// in the program, and therefore are better left as static variables.
-/// 
-/// There are other environment variables that are only used once:
-/// - `LOG_SEVERITY` - Severity level for the log file and stdout.
-///   * Defaults to `WARN`. Used at `utils::init_logging`.
-/// - `LOG_DIRECTORY` - The directory where the log files are stored.
-///   * Defaults to `/var/log/post_watcher`. Used at `utils::init_logging`.
-/// - `DATABASE_URL` - The URL to the database.
-///   * Defaults to `sqlite://data.db`. Used at `Database::init`.
-/// - `DB_CONN_POOL_MAX` - The maximum number of connections to the database.
-///   * Defaults to `100`. Used at `Database::init`.
+//! In this file, we define the environment variables that are used multiple times 
+//! in the program, and therefore are better left as static variables.
+//! 
+//! There are other environment variables that are only used once:
+//! - `LOG_SEVERITY` - Severity level for the log file and stdout.
+//!   * Defaults to `WARN`. Used at `utils::init_logging`.
+//! - `LOG_DIRECTORY` - The directory where the log files are stored.
+//!   * Defaults to `/var/log/post_watcher`. Used at `utils::init_logging`.
+//! - `DATABASE_URL` - The URL to the database.
+//!   * Defaults to `sqlite://data.db`. Used at `Database::init`.
+//! - `DB_CONN_POOL_MAX` - The maximum number of connections to the database.
+//!   * Defaults to `100`. Used at `Database::init`.
 
 use std::path::Path;
 

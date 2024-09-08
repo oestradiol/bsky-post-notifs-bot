@@ -6,6 +6,16 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilte
 
 use environment::{owned_var_or, owned_var_or_else};
 
+/// This method initializes the logging system for the application.
+/// It reads the following environment variables:
+/// - `LOG_DIRECTORY` - The directory where the logs will be stored. Defaults to `/var/log/post_watcher`.
+/// - `LOG_SEVERITY` - The minimum severity level for logs. Defaults to `INFO`.
+/// 
+/// The logs are written to the console and to a file in the specified directory.
+/// 
+/// # Returns
+/// Two WorkerGuards that need to live the entire lifetime of the application. 
+/// 
 /// # Panics
 ///
 /// When logging fails to initialize.
@@ -21,9 +31,9 @@ pub async fn init_logging() -> (WorkerGuard, WorkerGuard) {
     .await
     .unwrap_or_else(|e| panic!("Failed to create canonical directory: {e}. Path: {canonical:?}"));
 
-  let log_severity = owned_var_or("LOG_SEVERITY", LevelFilter::WARN);
+  let log_severity = owned_var_or("LOG_SEVERITY", LevelFilter::INFO);
 
-  #[expect(clippy::unwrap_used)]
+  #[expect(clippy::unwrap_used)] // Safe because it's a constant
   let filter = EnvFilter::builder()
     .with_default_directive(log_severity.into())
     .from_env()

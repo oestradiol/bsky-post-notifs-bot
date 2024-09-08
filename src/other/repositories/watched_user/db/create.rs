@@ -4,6 +4,8 @@ use utils::Did;
 
 use crate::{watched_user::Watcher, AppTransaction, Loadable};
 
+/// Creates a watched user.
+/// 
 /// # Errors
 ///
 /// Returns an error if the query or serialization fails.
