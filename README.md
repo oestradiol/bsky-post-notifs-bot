@@ -67,6 +67,8 @@ The Watcher is operated directly through the Bluesky platform. Users can interac
 
 - `!help`: Displays the available commands and their usage.
 
+Make sure you follow the bot or at least have DMs opened for everyone, or else it won't be able to contact you!
+
 #### **Opting Out**
 
 Respect for user privacy and consent is a core guideline for this. If you wish to opt out of notifications, you can simply block the bot on Bluesky. This action will prevent it from sending you any notifications, and your decision will be respected immediately.
@@ -203,6 +205,7 @@ Watcher requires several environment variables to function correctly. Ensure at 
 - **`DISCORD_WEBHOOK`**: The Discord Webhook URL (does not have a default value, however this feature will be disabled if undefined).
 - **`BOT_USERNAME`**: The bot's username on Bluesky.
 - **`BOT_PASSWORD`**: The bot's password or app password.
+- **`TURN_OFF_WATCHED_NOTIFS`**: Setting this variable to anything will prevent the bot from sending notifications to a newly watched user that they are being watched. Will also not send notifications when the user is unwatched by all their watchers. The feature is on by default.
 
 An example `.env` file is provided as `.env.example`.
 
@@ -251,7 +254,7 @@ Contributions are welcome and encouraged! If you'd like to help enhance **Watche
 
 <details>
    <summary><b><i>What should I do if the bot is not sending notifications?</b></i></summary>
-Check the logs for errors. Ensure it has the correct permissions and that the environment variables are properly set.
+Check the logs for errors. Ensure it has the correct permissions and that the environment variables are properly set. Also make sure the receiver is following the bot, or has DMs opened, or else the bot cannot contact them.
 </details>
 
 <details>
@@ -271,7 +274,7 @@ Pull the latest changes from the repository, rebuild it using `make build`, and 
 
 <details>
    <summary><b><i>The bot is not responding to commands, or receiving any at all. What could be wrong?</b></i></summary>
-If you are an end user, contact the maintainer. If you are the maintainer, first, ensure that the account has DMs opened for anyone. You can do that in the settings of your Bluesky account. Then, ensure that the commands sent by the users are correctly formatted and that it is actively listening for new commands. Check the logs for any errors related to command processing.
+If you are an end user, contact the maintainer. If you are the maintainer, first, ensure that the bot account has DMs opened for anyone. You can do that in the settings of your Bluesky account. Then, ensure that the commands sent by the users are correctly formatted and that it is actively listening for new commands. Check the logs for any errors related to command processing.
 </details>
 
 <details>

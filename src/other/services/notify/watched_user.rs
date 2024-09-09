@@ -3,6 +3,7 @@ use atrium_api::{
   types::Object,
 };
 use bsky::{get_user_convo, send_message};
+use environment::TURN_OFF_WATCHED_NOTIFS;
 use utils::Did;
 
 /// Notify a user that they are no longer being watched.
@@ -20,12 +21,15 @@ pub async fn no_longer(watched_did: Did) -> Result<(), anyhow::Error> {
     },
     ..
   } = get_user_convo::act(watched_did).await?;
-  send_message::act(
-    convo_id,
-    "(Notice) You're no longer being watched by anyone.".to_string(),
-    false,
-  )
-  .await?;
+  
+  if !*TURN_OFF_WATCHED_NOTIFS {
+    send_message::act(
+      convo_id,
+      "(Notice) You're no longer being watched by anyone.".to_string(),
+      false,
+    )
+    .await?;
+  }
 
   Ok(())
 }
@@ -45,17 +49,20 @@ pub async fn now_watched(watched_did: Did) -> Result<(), anyhow::Error> {
     },
     ..
   } = get_user_convo::act(watched_did).await?;
-  send_message::act(
-    convo_id,
-    "\
+
+  if !*TURN_OFF_WATCHED_NOTIFS {
+    send_message::act(
+      convo_id,
+      "\
 Heads up! You're now being watched by someone. \
 If you don't feel comfortable with this, \
 you can opt-out by blocking this bot. \
 If you have any questions, please read my bio!"
       .to_string(),
-    false,
-  )
-  .await?;
+      false,
+    )
+    .await?;
+  }
 
   Ok(())
 }

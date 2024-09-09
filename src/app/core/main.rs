@@ -1,6 +1,6 @@
 mod on_shutdown;
 
-use environment::WORKSPACE_DIR;
+use environment::{TURN_OFF_WATCHED_NOTIFS, WORKSPACE_DIR};
 use on_shutdown::with_graceful_shutdown;
 use repositories::Database;
 use services::jobs;
@@ -28,6 +28,12 @@ async fn main() {
     .unwrap_or_else(|e| panic!("Failed to migrate DB! Error: {e}"));
 
   event!(Level::INFO, "Application starting!");
+
+  if *TURN_OFF_WATCHED_NOTIFS {
+    event!(Level::INFO, "Bot will not notify users that they are being watched. Feature disabled in environment.");
+  } else {
+    event!(Level::INFO, "Bot is set to notify users that they are being watched.");
+  }
 
   #[expect(clippy::redundant_pub_crate)] // Select macro propagates this
   let commands_fut = async {

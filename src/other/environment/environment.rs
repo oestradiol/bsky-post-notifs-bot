@@ -19,11 +19,15 @@ use std::path::Path;
 use anyhow::anyhow;
 use lazy_static::lazy_static;
 
-use crate::{try_leak, var};
+use crate::{owned_var_try, try_leak, var};
 
 // Environment-agnostic variables
 
 lazy_static! {
+  /// Variable that determines whether the bot should send notifications to the user when
+  /// they are watched and when they are unwatched. If the variable is set to anything,
+  /// it will be considered as `false`. If it is unset, the feature is on by default.
+  pub static ref TURN_OFF_WATCHED_NOTIFS: bool = owned_var_try::<String>("TURN_OFF_WATCHED_NOTIFS").is_ok();
   /// The bot username on The Atmosphere.
   pub static ref BOT_USERNAME: &'static str = var::<String, _>("BOT_USERNAME");
   /// The bot password or app password.

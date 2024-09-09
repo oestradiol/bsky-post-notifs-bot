@@ -2025,6 +2025,7 @@ dependencies = [
  "atrium-api",
  "bsky",
  "chrono",
+ "environment",
  "lazy_static",
  "repositories",
  "tokio",

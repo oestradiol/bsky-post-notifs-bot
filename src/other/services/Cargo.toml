@@ -11,6 +11,7 @@ workspace = true
 
 [dependencies]
 repositories = { path = "../repositories" }
+environment = { path = "../environment" }
 utils = { path = "../utils" }
 bsky = { path = "../bsky" }
 tracing = "^0.1"
