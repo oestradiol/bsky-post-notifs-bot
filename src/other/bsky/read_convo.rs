@@ -12,7 +12,7 @@ use crate::BskyReq;
 pub enum Error {}
 
 /// Method for updating the read status of a conversation.
-/// 
+///
 /// # Errors
 ///
 /// Will return any unhandled request errors.

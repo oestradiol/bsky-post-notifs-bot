@@ -13,10 +13,10 @@ use utils::Did;
 /// Attempt to login to the Bsky API.
 /// First, it will try to load the agent from a config file.
 /// Then, if that fails, it will attempt to login and create a new session.
-/// 
+///
 /// # Returns
 /// A tuple of the Bsky agent and the DID of the logged in user.
-/// 
+///
 /// # Errors
 /// If the login fails.
 pub async fn act() -> Result<(BskyAgent, Did), BskyError> {

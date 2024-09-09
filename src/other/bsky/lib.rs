@@ -169,7 +169,7 @@ trait BskyReq {
   /// This is done to prevent singular failures to completely run the workflow of our bot.
   /// It also handles authentication errors, by reauthenticating.
   /// At the end, if everything worked as expected, it returns the output of the request.
-  /// 
+  ///
   /// # Errors
   /// Any expected errors that should be treated somewhere else, or (rarely) any persistent
   /// errors that could not be handled as an `Api` error, or a `BskyBug` error in case it's
@@ -220,7 +220,7 @@ trait BskyReq {
   }
 
   /// Method for processing all kinds of error that might happen in the client or the request.
-  /// 
+  ///
   /// # Returns
   /// `Some(Error)` if the error was handled, `None` if the session has expired so that it can be
   /// re-issued.

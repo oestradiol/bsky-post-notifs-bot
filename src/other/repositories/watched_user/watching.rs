@@ -156,7 +156,7 @@ impl PartialEq for Watcher {
 
 /// A method only used once at the initialization of the program to get the initial state of watched users
 /// for the memory repository. Retrieves all watched users from the database.
-/// 
+///
 /// # Errors
 /// When the query fails.
 async fn get_watching() -> sqlx::Result<HashMap<Did, Watchers>> {

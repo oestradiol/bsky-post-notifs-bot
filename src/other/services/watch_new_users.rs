@@ -18,10 +18,7 @@ pub async fn act<S: BuildHasher + Send>(watcher: Did, watched_users: HashSet<Did
   {
     // TODO: Actually implement with_replies feature: with_replies
     if watched_user::watch(watched_did.clone(), watcher.clone(), false).await {
-      event!(
-        Level::INFO,
-        "Newly watched user! DID: {watched_did}"
-      );
+      event!(Level::INFO, "Newly watched user! DID: {watched_did}");
       tokio::spawn(jobs::user_watcher::new(watched_did.clone()));
       tokio::spawn(async {
         notify::watched_user::now_watched(watched_did)

@@ -12,6 +12,8 @@ The only relevant section is probably [2.1 How to Use](#21-how-to-use). So you m
 
 I recommend reading the entire readme, or whatever sections below might help you. It covers all of the important aspects, really. The code is also properly documented, and I tried to make the variables self-explanatory for clarity, too.
 
+**Table of Contents**
+
 - [1. Special Thanks](#1-special-thanks)
 - [2. Overall Description](#2-overall-description)
   - [2.1 How to Use](#21-how-to-use)
@@ -242,23 +244,35 @@ Contributions are welcome and encouraged! If you'd like to help enhance **Watche
 
 ### 7. FAQ / Troubleshooting
 
-**Q: What should I do if the bot is not sending notifications?**  
-A: Check the bot's logs for errors. Ensure the bot has the correct permissions and that the environment variables are properly set.
+<details>
+   <summary><b><i>What should I do if the bot is not sending notifications?</b></i></summary>
+Check the bot's logs for errors. Ensure the bot has the correct permissions and that the environment variables are properly set.
+</details>
 
-**Q: How can I check if the bot is properly connected to Bluesky?**  
-A: Verify the bot's authentication details and check the connection status in the logs. Make sure your credentials are correct.
+<details>
+   <summary><b><i>How can I check if the bot is properly connected to Bluesky?</b></i></summary>
+Verify the bot's authentication details and check the connection status in the logs. Make sure your credentials are correct.
+</details>
 
-**Q: The bot crashed or stopped working. What should I do?**  
-A: Review the logs for any critical errors or panics. Restart the bot and monitor for recurring issues. If the problem persists, consider reporting it on the GitHub repository.
+<details>
+   <summary><b><i>The bot crashed or stopped working. What should I do?</b></i></summary>
+Review the logs for any critical errors or panics. Restart the bot and monitor for recurring issues. If the problem persists, consider reporting it on the GitHub repository.
+</details>
 
-**Q: How can I update the bot to the latest version?**  
-A: Pull the latest changes from the repository, rebuild the bot using `make build`, and redeploy it.
+<details>
+   <summary><b><i>How can I update the bot to the latest version?</b></i></summary>
+Pull the latest changes from the repository, rebuild the bot using `make build`, and redeploy it.
+</details>
 
-**Q: The bot is not responding to commands, or receiving any at all. What could be wrong?**  
-A: If you are an end user, contact the maintainer. If you are the maintainer, first, ensure that the bot account has DMs opened for anyone. You can do that in the settings of your Bluesky account. Then, ensure that the commands sent by the users are correctly formatted and that the bot is actively listening for new commands. Check the logs for any errors related to command processing.
+<details>
+   <summary><b><i>The bot is not responding to commands, or receiving any at all. What could be wrong?</b></i></summary>
+If you are an end user, contact the maintainer. If you are the maintainer, first, ensure that the bot account has DMs opened for anyone. You can do that in the settings of your Bluesky account. Then, ensure that the commands sent by the users are correctly formatted and that the bot is actively listening for new commands. Check the logs for any errors related to command processing.
+</details>
 
-**Q: How do I opt out of notifications?**  
-A: You can block the bot on Bluesky to opt out of notifications from it. The bot respects user privacy and will stop sending notifications if blocked.
+<details>
+   <summary><b><i>How do I opt out of notifications?</b></i></summary>
+You can block the bot on Bluesky to opt out of notifications from it. The bot respects user privacy and will stop sending notifications if blocked.
+</details>
 
 For additional help, check the [GitHub issues](https://github.com/oestradiol/bsky-post-notifs-bot/issues) or make a new issue for support.
 

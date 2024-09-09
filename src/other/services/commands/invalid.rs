@@ -1,5 +1,5 @@
 //! # `Invalid` command.
-//! 
+//!
 //! Implements the `Command` trait. Does not implement the `Parseable` trait,
 //! as it is not meant to be parsed, but rather to be used as a fallback for
 //! invalid commands.

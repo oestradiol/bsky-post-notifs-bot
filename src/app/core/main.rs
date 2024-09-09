@@ -11,14 +11,14 @@ use tracing::{event, Level};
 static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
 /// Main entry point for the application.
-/// 
+///
 /// This function initializes the logging system, runs the database migrations, and starts the
 /// command listener and issuer. It also starts watching users for new posts.
 #[tokio::main]
 async fn main() {
   dotenv::from_filename(WORKSPACE_DIR.join(".env")).ok();
   // Logging - The variable is needed for the lifetime of the program
-  let _log_guards = utils::init_logging().await;
+  let (discord_worker, _log_guards) = utils::init_logging().await;
 
   // Database auto migration
   event!(Level::INFO, "Running DB migrations...");
@@ -44,5 +44,5 @@ async fn main() {
   tokio::spawn(commands_fut);
   tokio::spawn(jobs::user_watcher::begin());
 
-  with_graceful_shutdown().await;
+  with_graceful_shutdown(discord_worker).await;
 }

@@ -15,9 +15,9 @@ use tracing::{event, Level};
 /// Command failure will be logged, but the bot will not notify the user about it,
 /// after all, if the command failed it's because it wasn't able to notify the user
 /// to begin with.
-/// 
+///
 /// Note: This job will only ever stop if `command_listener` job stop, given that
-/// they're both being used in a tokio::select! block.
+/// they're both being used in a `tokio::select!` block.
 #[expect(clippy::missing_panics_doc)] // False positive because of unwrap
 pub async fn begin() {
   event!(Level::INFO, "Now handling pending messages.");

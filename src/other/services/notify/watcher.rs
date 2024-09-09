@@ -38,7 +38,7 @@ pub async fn many(
 }
 
 /// Notify a single watcher of a watched user.
-/// 
+///
 /// # Errors
 /// Propagates any errors that occur during the process of contacting the API.
 async fn act(watcher: Did, watched_did: Did, is_post: bool) -> Result<(), anyhow::Error> {

@@ -18,11 +18,11 @@ use crate::BskyReq;
 pub enum Error {}
 
 /// Method to retrieve the messages from a conversation.
-/// 
+///
 /// # Errors
 ///
 /// Will return any unhandled request errors.
-/// 
+///
 /// # Returns
 /// A vector of messages from the conversation.
 #[expect(clippy::missing_panics_doc)] // False positive because of unwrap

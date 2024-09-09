@@ -15,7 +15,7 @@ use crate::BskyReq;
 pub enum Error {}
 
 /// Get all unread conversations.
-/// 
+///
 /// # Errors
 ///
 /// Will return any unhandled request errors.

@@ -25,13 +25,13 @@ pub enum Error {
 //       You can use that to notify only `watch_replies` users and know if should notify both.
 
 /// Method to get the last post time of a user.
-/// 
+///
 /// # Errors
 ///
 /// Any unhandled request errors are passed up to the caller.
-/// 
+///
 /// # Returns
-/// 
+///
 /// The last post time of the user in the UTC timezone.
 pub async fn act(actor: AtIdentifier) -> Result<DateTime<Utc>, super::Error<Error>> {
   let time_str = Request { actor }
@@ -39,16 +39,14 @@ pub async fn act(actor: AtIdentifier) -> Result<DateTime<Utc>, super::Error<Erro
     .await?
     .cursor
     .ok_or(super::Error::Other(Error::ZeroPosts))?;
-  time_str
-    .parse()
-    .map_err(|_| {
-      event!(
-        Level::WARN,
-        "(Notice) Received invalid timestamp for cursor: {:?}",
-        time_str
-      );
-      super::Error::BskyBug
-    })
+  time_str.parse().map_err(|_| {
+    event!(
+      Level::WARN,
+      "(Notice) Received invalid timestamp for cursor: {:?}",
+      time_str
+    );
+    super::Error::BskyBug
+  })
 }
 
 struct Request {

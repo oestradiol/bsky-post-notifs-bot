@@ -1,7 +1,9 @@
-//! In this file, we define the environment variables that are used multiple times 
+//! In this file, we define the environment variables that are used multiple times
 //! in the program, and therefore are better left as static variables.
-//! 
+//!
 //! There are other environment variables that are only used once:
+//! - `DISCORD_WEBHOOK` - The Discord webhook URL for logging.
+//!   * Does not have a default value. Used at `init_logging`.
 //! - `LOG_SEVERITY` - Severity level for the log file and stdout.
 //!   * Defaults to `INFO`. Used at `utils::init_logging`.
 //! - `LOG_DIRECTORY` - The directory where the log files are stored.
@@ -13,6 +15,7 @@
 
 use std::path::Path;
 
+#[cfg(debug_assertions)]
 use anyhow::anyhow;
 use lazy_static::lazy_static;
 

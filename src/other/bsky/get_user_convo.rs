@@ -15,7 +15,7 @@ use crate::BskyReq;
 pub enum Error {}
 
 /// Method for getting a conversation between the bot and a user.
-/// 
+///
 /// # Errors
 ///
 /// Will return any unhandled request errors.

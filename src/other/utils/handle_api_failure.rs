@@ -15,11 +15,10 @@ static MAX_FAILURES: u64 = {
   }
 };
 
-
-/// Handles API failures by sleeping for an incrementing amount of time. 
-/// The bot will retry in incrementing intervals of 1s, up to INCREMENTS_LIMIT,
-/// for a maximum of MINUTES_LIMIT.
-/// 
+/// Handles API failures by sleeping for an incrementing amount of time.
+/// The bot will retry in incrementing intervals of 1s, up to `INCREMENTS_LIMIT`,
+/// for a maximum of `MINUTES_LIMIT`.
+///
 /// # Returns
 /// A bool indicating whether the maximum retries have been reached.
 pub async fn handle_api_failure(failures_in_a_row: &mut u64) -> bool {

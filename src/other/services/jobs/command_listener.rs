@@ -17,13 +17,13 @@ pub static WATCH_DELAY: i64 = 2; // 2 Seconds
 /// wait for exactly `WATCH_DELAY` seconds between each loop.
 /// Also has a mechanism to handle persistent API failures, cancelling the job if the
 /// error appears to be unrecoverable, logging the error.
-/// 
+///
 /// Note: This job failing means the `command_issuer` job will also stop, given that
-/// they're both being used in a tokio::select! block.
+/// they're both being used in a `tokio::select!` block.
 /// Also important to note that if the user sends multiple messages in a row, they will
 /// be handled in order, but the bot will not wait for the previous commands to be issued,
 /// and will ignore any previous messages if the user sends a new one. This is to prevent
-/// the bot from being stuck on a single user's messages (DDoS).
+/// the bot from being stuck on a single user's messages (`DDoS`).
 #[expect(clippy::cognitive_complexity)]
 #[expect(clippy::missing_panics_doc)] // False positive because of unwrap
 pub async fn begin() {

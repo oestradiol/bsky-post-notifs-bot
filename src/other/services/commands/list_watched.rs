@@ -1,8 +1,8 @@
 //! # `ListWatched` command.
-//! 
+//!
 //! Implements the `Command` trait. Does not implement the `Parseable` trait,
 //! as there is no relevant information in the command that is used here.
-//! 
+//!
 //! Fetches all the users that the sender is watching and returns a message
 //! with all the handles of the users.
 

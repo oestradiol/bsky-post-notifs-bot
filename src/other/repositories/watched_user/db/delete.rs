@@ -3,7 +3,7 @@ use utils::Did;
 use crate::{AppTransaction, Loadable};
 
 /// Deletes a watched user.
-/// 
+///
 /// # Errors
 ///
 /// Returns an error if the query fails.

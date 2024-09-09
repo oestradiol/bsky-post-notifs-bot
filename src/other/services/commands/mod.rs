@@ -50,7 +50,7 @@ pub trait Parseable: Command {
 }
 
 /// Parses a command from a message.
-/// 
+///
 /// # Errors
 ///
 /// Watch and Unwatch might fail to resolve handles and DIDs.
@@ -82,7 +82,7 @@ pub async fn parse(
 }
 
 /// Auxiliary function to extract mentions from facets.
-/// 
+///
 /// # Returns
 /// A vector of `AtIdentifier`s.
 fn extract_mentions(facets: Vec<Main>) -> Vec<AtIdentifier> {

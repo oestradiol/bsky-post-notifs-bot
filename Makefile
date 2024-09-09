@@ -6,7 +6,7 @@ build:
 	rm -rf dist/Logs dist/app Logs # Keeps .env
 	mkdir -p dist
 	cargo build --release
-	cp target/release/posts-notifs dist/app
+	cp target/release/app dist/app
 	cp -n .env dist/.env
 
 lint:

@@ -24,7 +24,7 @@ pub enum Error {
 
 /// Method to send a message to a conversation.
 /// Optionally parses any rich text in the message.
-/// 
+///
 /// # Errors
 ///
 /// Will return any unhandled request errors.
@@ -97,8 +97,8 @@ impl BskyReq for Request {
   }
 }
 
-/// Handle any errors from the RichText API.
-/// 
+/// Handle any errors from the `RichText` API.
+///
 /// # Errors
 /// Either an `Api` error or an `AtriumBug` representing each case.
 #[expect(clippy::cognitive_complexity)]

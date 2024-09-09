@@ -37,7 +37,7 @@ pub struct Database {
 impl Database {
   /// Initiallizes by checking if the database file exists, creating it if it
   /// doesn't, and then connecting to it, initializing the connection pool.
-  /// 
+  ///
   /// # Panics
   ///
   /// Panics when connection pool fails to initialize.
@@ -45,10 +45,7 @@ impl Database {
   async fn init() -> Self {
     let db_url = owned_var_or_else("DATABASE_URL", || String::from("sqlite://data.db"));
 
-    if Sqlite::database_exists(&db_url)
-      .await
-      .unwrap_or(false)
-    {
+    if Sqlite::database_exists(&db_url).await.unwrap_or(false) {
       event!(Level::INFO, "Database found: {}", &db_url);
     } else {
       event!(Level::INFO, "Creating database: {}", &db_url);
@@ -75,7 +72,7 @@ impl Database {
   }
 
   /// Method to get a transaction from the database connection pool.
-  /// 
+  ///
   /// # Errors
   ///
   /// Fails when a transaction cannot be started.

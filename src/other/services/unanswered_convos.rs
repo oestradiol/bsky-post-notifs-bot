@@ -33,7 +33,7 @@ pub async fn handle_many(dms: Vec<ConvoViewData>) {
 /// message initially. If that fails, it then tries to fetch all of the unread messages
 /// and handle them accordingly. Lastly, it tries to mark the conversation as read and
 /// add the message to the pending messages for later processing.
-/// 
+///
 /// # Errors
 /// Propagates any errors that occur during the process of contacting the API.
 async fn handle(convo: ConvoViewData) -> Result<(), Error<anyhow::Error>> {
@@ -87,7 +87,7 @@ async fn handle(convo: ConvoViewData) -> Result<(), Error<anyhow::Error>> {
 
 /// Method to fetch and handle all unread messages in a conversation, in case
 /// the last message was not able to be read.
-/// 
+///
 /// # Errors
 /// Propagates any errors that occur during the process of contacting the API.
 async fn fetch_and_handle_unread(

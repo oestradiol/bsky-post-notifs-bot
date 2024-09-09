@@ -1,25 +1,32 @@
 use repositories::Database;
 use tokio::signal;
 use tracing::{event, Level};
+use utils::BackgroundWorker;
 
 /// Shutdown routines before the bot exits.
 /// Currently only gracefully disconnects from the database.
-async fn before_shutdown() {
+async fn before_shutdown(discord_worker: Option<BackgroundWorker>) {
   event!(
-    Level::INFO,
+    Level::WARN,
     "The bot is shutting down! Running shutdown routines..."
   );
+
   Database::disconnect().await;
+  
+  if let Some(worker) = discord_worker {
+    event!(Level::INFO, "Detaching the Discord worker...");
+    worker.shutdown().await;
+  }
 }
 
 /// Routine for gracefully handling the bot shutdown.
-pub async fn with_graceful_shutdown() {
+pub async fn with_graceful_shutdown(discord_worker: Option<BackgroundWorker>) {
   shutdown_signal().await;
-  before_shutdown().await;
+  before_shutdown(discord_worker).await;
 }
 
 /// Installs signal handlers for SIGTERM/SIGINT.
-/// 
+///
 /// # Panics
 ///
 /// Will panic if fails to install any of the signal handlers.

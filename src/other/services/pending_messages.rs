@@ -30,7 +30,7 @@ pub async fn add(convo_id: String, data: MessageViewData) {
 
 /// Processes a pending message by parsing the command then executing it.
 /// If the command is successful, it will send the message back to the user.
-/// 
+///
 /// # Errors
 /// Propagates any errors that occur during the process of contacting the API.
 pub async fn process(convo_id: String, data: MessageViewData) -> commands::Result<()> {

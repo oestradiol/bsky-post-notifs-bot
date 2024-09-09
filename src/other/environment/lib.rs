@@ -5,7 +5,9 @@ use anyhow::bail;
 pub use environment::*;
 
 /// Utility to attempt leaking a Box to your desired static reference type.
-fn try_leak<ToLeak, R: ?Sized>(to_leak: ToLeak) -> Result<&'static R, <Box::<R> as TryFrom<ToLeak>>::Error>
+fn try_leak<ToLeak, R: ?Sized>(
+  to_leak: ToLeak,
+) -> Result<&'static R, <Box<R> as TryFrom<ToLeak>>::Error>
 where
   Box<R>: TryFrom<ToLeak>,
 {
@@ -17,8 +19,12 @@ where
 /// result to be leaked.
 ///
 /// The leaking version of this is `var_try`.
-fn owned_var_try<T: FromStr>(name: &'static str) -> Result<T, anyhow::Error>
-  where anyhow::Error: From<<T as FromStr>::Err>
+///
+/// # Errors
+/// When the environment variable is not found or when the parsing fails for R.
+pub fn owned_var_try<T: FromStr>(name: &'static str) -> Result<T, anyhow::Error>
+where
+  anyhow::Error: From<<T as FromStr>::Err>,
 {
   let var = std::env::var(name)?;
   if var.is_empty() {
@@ -33,7 +39,8 @@ fn owned_var_try<T: FromStr>(name: &'static str) -> Result<T, anyhow::Error>
 ///
 /// The leaking version of this function is `var_or`.
 pub fn owned_var_or<T: FromStr>(name: &'static str, default: T) -> T
-  where anyhow::Error: From<<T as FromStr>::Err>
+where
+  anyhow::Error: From<<T as FromStr>::Err>,
 {
   owned_var_try(name).unwrap_or(default)
 }
@@ -44,7 +51,8 @@ pub fn owned_var_or<T: FromStr>(name: &'static str, default: T) -> T
 ///
 /// The leaking version of this function is `var_or_else`.
 pub fn owned_var_or_else<T: FromStr, V: FnOnce() -> T>(name: &'static str, default: V) -> T
-  where anyhow::Error: From<<T as FromStr>::Err>
+where
+  anyhow::Error: From<<T as FromStr>::Err>,
 {
   owned_var_try(name).unwrap_or_else(|_| default())
 }

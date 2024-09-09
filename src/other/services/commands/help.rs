@@ -1,8 +1,8 @@
 //! # `Help` command.
-//! 
+//!
 //! Implements the `Command` trait. Does not implement the `Parseable` trait,
 //! as there is no relevant information in the command that is used here.
-//! 
+//!
 //! Returns a hard-coded message to the user indicating all signatures for each command.
 
 use atrium_api::types::string::Did;
@@ -21,7 +21,8 @@ Available commands:
 - `!unwatch @user_1 @user_2 (...)`
 - `!list_watched`
 - `!help`\
-        ".to_string(),
+        "
+        .to_string(),
       )
     })
   }
