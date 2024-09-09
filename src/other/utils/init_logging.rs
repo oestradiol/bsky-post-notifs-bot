@@ -34,7 +34,7 @@ pub async fn init_logging() -> (Option<BackgroundWorker>, (WorkerGuard, WorkerGu
   let log_dir = log_directory().await; 
 
   // Reading the log severity level
-  let log_severity: String = owned_var_try("LOG_SEVERITY").unwrap();
+  let log_severity: String = owned_var_or_else("LOG_SEVERITY", || String::from("INFO"));
 
   // Filtering verbose crates
   let filtered = vec!["h2",  "sqlx", "hyper", "hyper_util", "reqwest"];
