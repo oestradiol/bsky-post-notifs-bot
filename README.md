@@ -1,5 +1,8 @@
 # Bluesky Watcher Bot - Post Notification Watcher
 
+Follow me on Bluesky!
+- [return Ok(elaina);](https://bsky.app/profile/elynn.bsky.social)
+
 ## Summary
 
 Here's a summary of what this README.md covers. I tried to be as comprehensive as possible, to help both end users and anyone that wants to self-host this.
@@ -43,23 +46,20 @@ Yoshihiro-san also was quick to help me when I had issues with it, as you can se
 
 ### 2. Overall Description
 
-This **Bluesky Bot**, named **Watcher**, is designed to subscribe to post notifications from specific users on the Bluesky platform and notify listeners in real-time (check the next section if you plan on using this service!). Built using the [ATrium](https://github.com/sugyan/atrium) library, Watcher efficiently tracks posts and replies by interacting with the Bluesky API, checking each user only once every 15 seconds.
+This **Bluesky Bot**, named **Watcher**, is designed to subscribe to post notifications from users on Bluesky and notify listeners in real-time. Built using [ATrium](https://github.com/sugyan/atrium), Watcher tracks posts and replies by interacting with ATProto. It is capable of monitoring multiple users simultaneously and employs [Tokio](https://tokio.rs/) to manage tasks and threads efficiently. It also includes a logging system to track all events and operations.
 
-Watcher is capable of monitoring multiple users simultaneously and employs [Tokio](https://tokio.rs/) to manage these tasks efficiently. It also includes a logging system to track all events and operations.
-
-Utilizing Discord webhooks, Watcher sends real-time updates to a specified Discord channel, keeping the maintainer informed of important activities, including failures and changes in the watchlist. [The level of the logs can be configured with an environment variable](#52-environment-variables). Additionally, the bot features session caching to minimize repeated authentication.
+For the self-hosters and maintainers, there is a Discord webhook opt-in for the logging system. If you use it, it sends real-time updates to the webhook, keeping you informed of important events, including failures and changes to the watchlist. [The level of the logs can be configured with an environment variable](#52-environment-variables).
 
 The bot is designed with robust error resilience, including a retry mechanism for API failures, connection issues, and invalid user inputs. This ensures continuous operation even in the face of temporary disruptions.
 
-This bot is developed on top of the latest version of Rust, that currently being 1.81.
-
 ### 2.1 How to Use
 
-The Watcher is operated directly through the Bluesky platform. Users can interact with the bot by sending specific commands via direct message (DM) to manage which users they want to watch for post notifications.
+The Watcher is operated directly through the Bluesky platform. Users can interact with it by sending specific commands via direct message (DM) to manage which users they want to watch for post notifications.
 
 #### Available Commands:
 
-- `!watch @user_1.handle @user_2.handle (...)`: Add one or more users to your watchlist. The bot will notify you whenever these users post or reply to posts. (NOTICE: Currently, listening to replies is not really implemented, but the bot is structured to allow for such as an opt-in. If you really want this feature, [feel free to contribute](#6-contributions)!)
+- `!watch @user_1.handle @user_2.handle (...)`: Add one or more users to your watchlist. The bot will notify you whenever these users post or reply to posts.
+   - NOTICE: Currently, listening to replies is not really implemented, but the code is structured to allow for such feature. If you really want this, [feel free to contribute](#6-contributions)!
   
 - `!unwatch @user_1.handle @user_2.handle (...)`: Remove one or more users from your watchlist, stopping notifications for their posts or replies.
 
@@ -69,7 +69,7 @@ The Watcher is operated directly through the Bluesky platform. Users can interac
 
 #### **Opting Out**
 
-Respect for user privacy and consent is a core guideline for this bot. If you wish to opt out of notifications, you can simply block the bot on Bluesky. This action will prevent the bot from sending you any notifications, and your decision will be respected immediately.
+Respect for user privacy and consent is a core guideline for this. If you wish to opt out of notifications, you can simply block the bot on Bluesky. This action will prevent it from sending you any notifications, and your decision will be respected immediately.
 
 ---
 
@@ -79,19 +79,22 @@ The Watcher comes with a variety of features designed to provide efficient and r
 
 #### **Key Features:**
 
-- **Post Notifications**: Subscribes to posts and replies from specified users and sends real-time updates to listeners. This is done concurrently, without blocking the main threads.
-
-- **Discord Webhooks**: Integrates with Discord to notify a channel about updates, ensuring immediate awareness of important logs (errors, warnings).
+- **Post Notifications**: Subscribes to posts and replies from specified users and sends real-time updates to listeners.
+   - This is done concurrently, without blocking the main threads.
 
 - **Session Caching**: Caches sessions to reduce repeated authentication.
 
-- **Sqlite Storage**: Utilizes Sqlite to cache the bot's state, ensuring persistence across restarts. This allows the bot to recover its state and resume operations without losing data. This is done concurrently, without blocking the main threads.
-
 - **In-Memory Repository**: Implements an in-memory repository for fast concurrent access to the watchlist and notifications, enhancing responsiveness and efficiency.
 
-- **Graceful Shutdown**: Ensures that the Sqlite database disconnects gracefully before the bot shuts down, maintaining data integrity and preventing corruption.
+- **Sqlite Storage**: Utilizes Sqlite to cache the state, ensuring persistence across restarts. This allows the bot to recover its state and resume operations without losing data.
+   - This is done concurrently, without blocking the main threads.
 
-- **Logging System**: Tracks all significant events and operations within the bot, providing detailed logs for monitoring and debugging. This is done concurrently, without blocking the main threads.
+- **Logging System**: Tracks all significant events and operations, providing detailed logs for monitoring and debugging.
+   - This is done concurrently, without blocking the main threads.
+
+- **Discord Webhooks**: Optionally, integrates with Discord to notify a channel about updates, ensuring immediate awareness of important logs (errors, warnings).
+
+- **Graceful Shutdown**: Ensures that the Sqlite database disconnects gracefully before shutdown, maintaining data integrity and preventing corruption. Also finishes sending all your Discord logs, if the feature is enabled.
 
 ### 3.1 Error Handling
 
@@ -99,13 +102,13 @@ The Watcher is designed to handle a range of errors and potential issues gracefu
 
 #### **API and Bluesky Errors**
 
-- **Retry Mechanism**: The bot attempts to issue requests and handle errors by retrying up to [`PER_REQ_MAX_RETRIES`](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/bsky/lib.rs#L158). This helps prevent single failures from interrupting the bot’s workflow. Authentication errors are managed by reauthenticating as needed.
+- **Retry Mechanism**: Attempts to issue requests and handle errors by retrying up to [`PER_REQ_MAX_RETRIES`](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/bsky/lib.rs#L158). This helps prevent single failures from interrupting the workflow. Authentication errors are managed by reauthenticating as needed.
   
-- **Error Handling**: Expected errors are managed accordingly, and persistent issues are flagged as `Api` or `BskyBug` errors, particularly if they are related to the Bluesky API.
+- **Error Handling**: Expected errors are managed accordingly, and persistent issues are flagged as `Api` or `BskyBug` errors.
 
 #### **ATrium Bugs**
 
-- **Bug Handling**: The bot includes safeguards to manage potential bugs in the ATrium library. These are addressed as they occur.
+- **Bug Handling**: Includes safeguards to manage potential bugs in the ATrium library. These are addressed as they occur.
 
 #### **Database Errors**
 
@@ -117,13 +120,13 @@ The Watcher is designed to handle a range of errors and potential issues gracefu
 
 #### **Bluesky Bugs**
 
-- The bot is prepared to handle any possible Bluesky bugs. It should log those comprehensively, so that the maintainer can ask for help and possibly [contribute to the project](https://github.com/bluesky-social/atproto).
+- The bot is prepared to handle any possible Bluesky bugs. It should log those comprehensively, so that the hoster can ask for help and possibly [contribute to the project](https://github.com/bluesky-social/atproto).
 
 #### **Other Errors**
 
-- **Command Handling Failures**: The bot handles cached commands. Command failures are logged, but the bot does not notify the user about the failure, as currently any command failure is caused by a failure in contacting the API, so it's unfeasible to notify the user anyways. This means that failed commands need to be reissued.
+- **Command Handling Failures**: Handles cached commands. Command failures are logged, but it does not notify the sender about the failure, as currently any command failure is caused by a failure in contacting the API, so it's unfeasible to notify them anyways. This means that failed commands need to be reissued.
 
-- **Command Listener Failures**: The bot listens for new commands and [fetches unread conversations periodically](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/services/jobs/command_listener.rs#L11). Failures are logged, and the job will cancel if the error is deemed unrecoverable. Persistent failures will cause the bot to stop listening for new commands. By consequence, this also cancels the command handling task.
+- **Command Listener Failures**: Listens for new commands and [fetches unread conversations periodically](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/services/jobs/command_listener.rs#L11). Failures are logged, and the job will cancel if the error is deemed unrecoverable. Persistent failures will cause it to stop listening for new commands. By consequence, this also cancels the command handling task.
 
 - **Post Watching Failures**: Watching users' posts and notifying watchers is [done periodically](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/services/jobs/user_watcher.rs#L26). If failures occur, they are logged, and the job will cancel if the error is unrecoverable.
 
@@ -151,6 +154,8 @@ The following features and improvements are planned for future development:
 
 - **Configuration for Invalid Messages and Unknown Commands**: Creating a configuration file for customizing the response message for invalid messages and unknown commands. Currently, the messages are hard-coded ([occurrence 1](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/services/commands/invalid.rs#L7), [occurrence 2](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/services/commands/unknown.rs#L7)).
 
+- **Analysing and implementing using a firehose/relay**: It'd be better to do that instead of making individual requests every 15s to the API, but I haven't looked into it much *yet*. Hence why it's here.
+
 ---
 
 ### 4. Workspace Organization
@@ -165,7 +170,7 @@ The project workspace is organized as follows:
 
 - **`src/other/repositories`**: Houses data repositories, including the Sqlite storage and in-memory cache.
 
-- **`src/other/services`**: Contains various services used by the bot, such as command processing and notification handling.
+- **`src/other/services`**: Contains various services used, such as command processing and notification handling.
 
 - **`src/other/utils`**: Includes utility functions and helpers used across the project.
 
@@ -173,19 +178,19 @@ The project workspace is organized as follows:
 
 ### 5. Running and Building
 
-To run **Watcher**, follow the instructions below for different environments and setups.
+First, ensure you're using the latest version of Rust (1.81). Then, to run **Watcher**, follow the instructions below for different environments and setups.
 
 #### 5.1 Makefile
 
-The Makefile provides convenient commands for building, testing, and running the bot. Available commands:
+The Makefile provides convenient commands for building, testing, and running. Available commands:
 
 - **`make clean`**: Cleans up build artifacts and logs while keeping the `.env` file.
-- **`make build`**: Builds the bot and copies the executable and `.env` file to the `dist` directory.
+- **`make build`**: Builds and copies the executable and `.env` file to the `dist` directory.
 - **`make lint`**: Runs the linter for the codebase.
 - **`make lint-fix`**: Automatically fixes linting issues.
 - **`make force-lint-fix`**: Forces linting fixes even for dirty or staged files.
-- **`make dev`**: Runs the bot in development mode with full span tracing and backtraces, while still respecting the `LOG_SEVERITY` environment variable.
-- **`make prod`**: Builds and runs the bot in production mode.
+- **`make dev`**: Runs in development mode with full span tracing and backtraces, while still respecting the `LOG_SEVERITY` environment variable.
+- **`make prod`**: Builds and runs in production mode.
 
 #### 5.2 Environment Variables
 
@@ -205,20 +210,20 @@ An example `.env` file is provided as `.env.example`.
 
 For production deployment:
 
-1. **Build Watcher**: Use `make build` to compile the bot and prepare the executable.
-2. **Run Watcher**: Navigate to the `dist` directory and execute `./app` to start the bot.
+1. **Build Watcher**: Use `make build` to compile and prepare the executable.
+2. **Run Watcher**: Navigate to the `dist` directory and execute `./app` to start.
 
 Alternatively, you can run `make prod` to do both of the commands above at once.
 
 After that, you can copy the `dist` directory wherever you prefer and delete the rest of the source code.
 
-Ensure all environment variables are set correctly before running the bot.
+Ensure all environment variables are set correctly before running.
 
 #### 5.4 Docker Deployment (untested)
 
 NOTICE: This section and the corresponding Dockerfile are untested, but it _should_ hopefully work.
 
-To deploy the bot using Docker, follow these steps:
+To deploy using Docker, follow these steps:
 
 1. **Build the Docker Image**:
 
@@ -229,10 +234,10 @@ To deploy the bot using Docker, follow these steps:
 2. **Run the Docker Container**:
 
   ```bash
-  docker run -d --name watch-bot -e BOT_USERNAME=<your_bot_username> -e BOT_PASSWORD=<your_bot_password>
+  docker run -d --name watch-bot -e BOT_USERNAME=<your_username> -e BOT_PASSWORD=<your_password>
   ```
 
-Make sure to replace `<your_bot_username>` and `<your_bot_password>` with your actual bot credentials.
+Make sure to replace `<your_username>` and `<your_password>` with your actual bot credentials.
 
 ---
 
@@ -246,32 +251,32 @@ Contributions are welcome and encouraged! If you'd like to help enhance **Watche
 
 <details>
    <summary><b><i>What should I do if the bot is not sending notifications?</b></i></summary>
-Check the bot's logs for errors. Ensure the bot has the correct permissions and that the environment variables are properly set.
+Check the logs for errors. Ensure it has the correct permissions and that the environment variables are properly set.
 </details>
 
 <details>
-   <summary><b><i>How can I check if the bot is properly connected to Bluesky?</b></i></summary>
-Verify the bot's authentication details and check the connection status in the logs. Make sure your credentials are correct.
+   <summary><b><i>How can I check if it is properly connected to Bluesky?</b></i></summary>
+Verify the authentication details and check the connection status in the logs. Make sure your credentials are correct.
 </details>
 
 <details>
    <summary><b><i>The bot crashed or stopped working. What should I do?</b></i></summary>
-Review the logs for any critical errors or panics. Restart the bot and monitor for recurring issues. If the problem persists, consider reporting it on the GitHub repository.
+Review the logs for any critical errors or panics. Restart it and monitor for recurring issues. If the problem persists, consider reporting it on the GitHub repository.
 </details>
 
 <details>
    <summary><b><i>How can I update the bot to the latest version?</b></i></summary>
-Pull the latest changes from the repository, rebuild the bot using `make build`, and redeploy it.
+Pull the latest changes from the repository, rebuild it using `make build`, and redeploy it.
 </details>
 
 <details>
    <summary><b><i>The bot is not responding to commands, or receiving any at all. What could be wrong?</b></i></summary>
-If you are an end user, contact the maintainer. If you are the maintainer, first, ensure that the bot account has DMs opened for anyone. You can do that in the settings of your Bluesky account. Then, ensure that the commands sent by the users are correctly formatted and that the bot is actively listening for new commands. Check the logs for any errors related to command processing.
+If you are an end user, contact the maintainer. If you are the maintainer, first, ensure that the account has DMs opened for anyone. You can do that in the settings of your Bluesky account. Then, ensure that the commands sent by the users are correctly formatted and that it is actively listening for new commands. Check the logs for any errors related to command processing.
 </details>
 
 <details>
    <summary><b><i>How do I opt out of notifications?</b></i></summary>
-You can block the bot on Bluesky to opt out of notifications from it. The bot respects user privacy and will stop sending notifications if blocked.
+You can block it on Bluesky to opt out of notifications from it. The bot respects user privacy and will stop sending notifications if blocked.
 </details>
 
 For additional help, check the [GitHub issues](https://github.com/oestradiol/bsky-post-notifs-bot/issues) or make a new issue for support.
