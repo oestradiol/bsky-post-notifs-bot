@@ -10,13 +10,13 @@ path = "lib.rs"
 workspace = true
 
 [dependencies]
-repositories = { path = "../repositories" }
-environment = { path = "../environment" }
-utils = { path = "../utils" }
-bsky = { path = "../bsky" }
-tracing = "^0.1"
-atrium-api = "^0.24"
-tokio = "^1.37"
-chrono = "^0.4"
-anyhow = "^1.0"
-lazy_static = "^1.4"
+repositories.workspace = true
+environment.workspace = true
+utils.workspace = true
+bsky.workspace = true
+tracing.workspace = true
+atrium-api.workspace = true
+tokio.workspace = true
+chrono.workspace = true
+anyhow.workspace = true
+lazy_static.workspace = true

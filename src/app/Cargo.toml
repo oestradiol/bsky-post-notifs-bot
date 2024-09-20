@@ -11,14 +11,14 @@ path = "core/main.rs"
 workspace = true
 
 [dependencies]
-environment = { path = "../other/environment" }
-repositories = { path = "../other/repositories" }
-services = { path = "../other/services" }
-tracing = "^0.1"
-tokio = { version = "^1.37", features = ["rt-multi-thread", "signal"] }
-dotenv = "^0.15"
-sqlx = { version = "^0.8", features = ["sqlite", "runtime-tokio", "tls-native-tls"] }
-utils = { path = "../other/utils" }
+environment.workspace = true
+repositories.workspace = true
+services.workspace = true
+tracing.workspace = true
+tokio.workspace = true
+dotenv.workspace = true
+sqlx.workspace = true
+utils.workspace = true
 
 [target.'cfg(unix)'.dependencies]
 jemallocator = "^0.5"

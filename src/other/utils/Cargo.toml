@@ -10,13 +10,13 @@ path = "lib.rs"
 workspace = true
 
 [dependencies]
-tracing = "^0.1"
-tracing-subscriber = { version = "^0.3", features = ["env-filter"] }
-tracing-appender = "^0.2"
-color-eyre = "^0.6"
-environment = { path = "../environment" }
-tokio = { version = "^1.37", features = ["rt-multi-thread", "fs"] }
-atrium-api = "^0.24"
-tracing-layer-discord = "^0.1"
-regex = "^1.0"
-debug_print = "^1.0"
+tracing.workspace = true
+tracing-subscriber.workspace = true
+tracing-appender.workspace = true
+color-eyre.workspace = true
+environment.workspace = true
+tokio.workspace = true
+atrium-api.workspace = true
+tracing-layer-discord.workspace = true
+regex.workspace = true
+debug_print.workspace = true

@@ -10,16 +10,15 @@ path = "lib.rs"
 workspace = true
 
 [dependencies]
-environment = { path = "../environment" }
-utils = { path = "../utils" }
-async_once = "^0.2"
-lazy_static = "^1.4"
-atrium-api = { version = "^0.24", features = ["tokio"] }
-bsky-sdk = { version = "^0.1", features = ["config-toml"] }
-chrono = "^0.4"
-ipld-core = "^0.4"
-thiserror = "^1.0"
-tracing = "^0.1"
-tokio = { version = "^1.37", features = ["rt-multi-thread", "macros"] }
-atrium-xrpc = "^0.11"
-
+environment.workspace = true
+utils.workspace = true
+async_once.workspace = true
+lazy_static.workspace = true
+atrium-api.workspace = true
+bsky-sdk.workspace = true
+chrono.workspace = true
+ipld-core.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+tokio.workspace = true
+atrium-xrpc.workspace = true

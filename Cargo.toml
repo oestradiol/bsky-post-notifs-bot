@@ -50,3 +50,45 @@ suspicious = "deny"
 ### Overrides
 missing_errors_doc = { level = "warn", priority = 1 }
 missing_panics_doc = { level = "warn", priority = 1 }
+
+
+
+
+[workspace.dependencies]
+# Intra-workspace dependencies
+repositories = { path = "src/other/repositories" }
+environment = { path = "src/other/environment" }
+services = { path = "src/other/services" }
+utils = { path = "src/other/utils" }
+bsky = { path = "src/other/bsky" }
+
+# Serialization
+ipld-core = "^0.4"
+serde = { version = "^1.0", features = ["derive"] }
+serde_json = "^1.0"
+
+# Errors
+thiserror = "^1.0"
+anyhow = "^1.0"
+
+# Logging
+tracing = "^0.1"
+tracing-subscriber = { version = "^0.3", features = ["env-filter"] }
+tracing-appender = "^0.2"
+tracing-layer-discord = "^0.1"
+debug_print = "^1.0"
+color-eyre = "^0.6"
+
+# ATrium
+atrium-api = { version = "^0.24", features = ["tokio"] }
+atrium-xrpc = "^0.11"
+bsky-sdk = { version = "^0.1", features = ["config-toml"] }
+
+# Other
+async_once = "^0.2"
+lazy_static = "^1.4"
+dotenv = "^0.15"
+sqlx = { version = "^0.8", features = ["sqlite", "runtime-tokio", "tls-native-tls"] }
+chrono = "^0.4"
+tokio = { version = "^1.37", features = ["rt-multi-thread", "fs", "macros", "signal"] }
+regex = "^1.0"

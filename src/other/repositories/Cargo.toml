@@ -10,13 +10,13 @@ path = "lib.rs"
 workspace = true
 
 [dependencies]
-environment = { path = "../environment" }
-utils = { path = "../utils" }
-lazy_static = "^1.4"
-async_once = "^0.2"
-sqlx = { version = "^0.8", features = ["sqlite", "runtime-tokio", "tls-native-tls"] }
-tracing = "^0.1"
-anyhow = "^1.0"
-tokio = "^1.37"
-serde = { version = "^1.0", features = ["derive"] }
-serde_json = "^1.0"
+environment.workspace = true
+utils.workspace = true
+lazy_static.workspace = true
+async_once.workspace = true
+sqlx.workspace = true
+tracing.workspace = true
+anyhow.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true

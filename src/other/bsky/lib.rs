@@ -247,35 +247,35 @@ trait BskyReq {
       Err(XrpcError::HttpRequest(e)) => {
         event!(
           Level::WARN,
-          "(Notice) Failed to issue request, API Error: {e}"
+          "(Notice) Failed to issue request, API Error: {e:?}"
         );
         Some(Error::Api)
       }
       Err(XrpcError::HttpClient(e)) => {
         event!(
           Level::WARN,
-          "(Notice) Failed to issue request, API Error: {e}"
+          "(Notice) Failed to issue request, API Error: {e:?}"
         );
         Some(Error::Api)
       }
       Err(XrpcError::SerdeJson(e)) => {
         event!(
           Level::WARN,
-          "(Notice) Failed to issue request, Bsky Error: {e}"
+          "(Notice) Failed to issue request, Bsky Error (SerdeJson): {e:?}"
         );
         Some(Error::BskyBug)
       }
       Err(XrpcError::SerdeHtmlForm(e)) => {
         event!(
           Level::WARN,
-          "(Notice) Failed to issue request, Bsky Error: {e}"
+          "(Notice) Failed to issue request, Bsky Error (SerdeHtmlForm): {e:?}"
         );
         Some(Error::BskyBug)
       }
       Err(XrpcError::UnexpectedResponseType) => {
         event!(
           Level::WARN,
-          "(Notice) Failed to issue request, Bsky Error: Unexpected Response Type"
+          "(Notice) Failed to issue request, Bsky Error (UnexpectedResponseType)"
         );
         Some(Error::BskyBug)
       }
