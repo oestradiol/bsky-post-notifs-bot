@@ -156,7 +156,7 @@ The following features and improvements are planned for future development:
 
 - **Configuration for Invalid Messages and Unknown Commands**: Creating a configuration file for customizing the response message for invalid messages and unknown commands. Currently, the messages are hard-coded ([occurrence 1](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/services/commands/invalid.rs#L7), [occurrence 2](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/services/commands/unknown.rs#L7)).
 
-- **Analysing and implementing using a firehose/relay**: It'd be better to do that instead of making individual requests every 15s to the API, but I haven't looked into it much *yet*. Hence why it's here.
+- **Analysing and implementing using a firehose/relay**: It'd be better to do that instead of making individual requests every 15s to the API. However, ATrium doesn't yet have a client compatible with Event Streams, but there's a [PR made my me](https://github.com/sugyan/atrium/pull/228) to work on this.
 
 ---
 
