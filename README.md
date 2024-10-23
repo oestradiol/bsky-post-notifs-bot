@@ -71,7 +71,7 @@ Make sure you follow the bot or at least have DMs opened for everyone, or else i
 
 #### **Opting Out**
 
-Respect for user privacy and consent is a core guideline for this. If you wish to opt out of notifications, you can simply block the bot on Bluesky. This action will prevent it from sending you any notifications, and your decision will be respected immediately.
+Respect for user privacy and consent is a core guideline for this. If you wish to opt out of notifications, you can simply block the bot on Bluesky. This action will prevent it from sending you any notifications, as well as watching you. Your decision will be respected immediately.
 
 ---
 
@@ -82,17 +82,14 @@ The Watcher comes with a variety of features designed to provide efficient and r
 #### **Key Features:**
 
 - **Post Notifications**: Subscribes to posts and replies from specified users and sends real-time updates to listeners.
-   - This is done concurrently, without blocking the main threads.
 
 - **Session Caching**: Caches sessions to reduce repeated authentication.
 
-- **In-Memory Repository**: Implements an in-memory repository for fast concurrent access to the watchlist and notifications, enhancing responsiveness and efficiency.
+- **In-Memory Repository**: Implements an in-memory repository for fast concurrent access to the watchlist and notifications.
 
 - **Sqlite Storage**: Utilizes Sqlite to cache the state, ensuring persistence across restarts. This allows the bot to recover its state and resume operations without losing data.
-   - This is done concurrently, without blocking the main threads.
 
 - **Logging System**: Tracks all significant events and operations, providing detailed logs for monitoring and debugging.
-   - This is done concurrently, without blocking the main threads.
 
 - **Discord Webhooks**: Optionally, integrates with Discord to notify a channel about updates, ensuring immediate awareness of important logs (errors, warnings).
 
@@ -104,9 +101,7 @@ The Watcher is designed to handle a range of errors and potential issues gracefu
 
 #### **API and Bluesky Errors**
 
-- **Retry Mechanism**: Attempts to issue requests and handle errors by retrying up to [`PER_REQ_MAX_RETRIES`](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/bsky/lib.rs#L158). This helps prevent single failures from interrupting the workflow. Authentication errors are managed by reauthenticating as needed.
-  
-- **Error Handling**: Expected errors are managed accordingly, and persistent issues are flagged as `Api` or `BskyBug` errors.
+- **Retry Mechanism**: Attempts to issue requests and handle errors by retrying up to [`PER_REQ_MAX_RETRIES`](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/bsky/lib.rs#L158). This helps prevent single failures from interrupting the workflow.
 
 #### **ATrium Bugs**
 
@@ -126,11 +121,12 @@ The Watcher is designed to handle a range of errors and potential issues gracefu
 
 #### **Other Errors**
 
-- **Command Handling Failures**: Handles cached commands. Command failures are logged, but it does not notify the sender about the failure, as currently any command failure is caused by a failure in contacting the API, so it's unfeasible to notify them anyways. This means that failed commands need to be reissued.
+- **Command Handling Failures**: Handles cached commands. Command failures are logged, but it does not notify the sender about the failure, as currently any command failure is caused by a failure in contacting the API, so it's contradictory to attempt to notify them anyways. This means that failed commands need to be reissued.
 
-- **Command Listener Failures**: Listens for new commands and [fetches unread conversations periodically](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/services/jobs/command_listener.rs#L11). Failures are logged, and the job will cancel if the error is deemed unrecoverable. Persistent failures will cause it to stop listening for new commands. By consequence, this also cancels the command handling task.
+- **Command Listener Failures**: Listens for new commands and [fetches unread conversations periodically](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/services/jobs/command_listener.rs#L11). Failures are logged, and the job will cancel if the error is deemed unrecoverable. Persistent failures will cause it to stop listening for new commands.
 
 - **Post Watching Failures**: Watching users' posts and notifying watchers is [done periodically](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/services/jobs/user_watcher.rs#L26). If failures occur, they are logged, and the job will cancel if the error is unrecoverable.
+    * Ideally, this would be reworked to use the firehose (or jetstreams). Feel free to contribute!
 
 #### **Panic Scenarios**
 
@@ -148,15 +144,15 @@ The Watcher is designed to handle a range of errors and potential issues gracefu
 
 ### 3.2 TODOs
 
-The following features and improvements are planned for future development:
+The following features and improvements are planned for future development (if it does ever happen):
+
+- **Analysing and implementing using the firehose/jetstreams**: It'd be better to do that instead of making individual requests every 15s to the API. However, ATrium doesn't yet have a client compatible with Event Streams, but there's a [PR made my me](https://github.com/sugyan/atrium/pull/228) to work on this.
 
 - **`with_replies` feature**: [Develop the `posts_with_replies` filter](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/bsky/get_last_post_time.rs#L22) to distinguish between replies and regular posts. This will enhance notification management for users who also want to be notified for replies.
 
-- **Rate Limiting**: Analyze how the ATProto APIs handle rate limiting and [implement a more robust solution](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/bsky/lib.rs#L183) to manage potential rate limits.
+- **Rate Limiting**: Analyze how the ATProto APIs handle rate limiting and [implement a more robust solution](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/bsky/lib.rs#L183) to manage potential rate limits, if necessary.
 
 - **Configuration for Invalid Messages and Unknown Commands**: Creating a configuration file for customizing the response message for invalid messages and unknown commands. Currently, the messages are hard-coded ([occurrence 1](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/services/commands/invalid.rs#L7), [occurrence 2](https://github.com/oestradiol/bsky-post-notifs-bot/blob/main/src/other/services/commands/unknown.rs#L7)).
-
-- **Analysing and implementing using a firehose/relay**: It'd be better to do that instead of making individual requests every 15s to the API. However, ATrium doesn't yet have a client compatible with Event Streams, but there's a [PR made my me](https://github.com/sugyan/atrium/pull/228) to work on this.
 
 ---
 
@@ -180,7 +176,7 @@ The project workspace is organized as follows:
 
 ### 5. Running and Building
 
-First, ensure you're using the latest version of Rust (1.81). Then, to run **Watcher**, follow the instructions below for different environments and setups.
+First, ensure you're using the correct version of Rust (1.81). Then, to run **Watcher**, follow the instructions below for different environments and setups.
 
 #### 5.1 Makefile
 
@@ -278,8 +274,8 @@ If you are an end user, contact the maintainer. If you are the maintainer, first
 </details>
 
 <details>
-   <summary><b><i>How do I opt out of notifications?</b></i></summary>
-You can block it on Bluesky to opt out of notifications from it. The bot respects user privacy and will stop sending notifications if blocked.
+   <summary><b><i>How do I opt out of notifications/being watched?</b></i></summary>
+You can block it on Bluesky to opt out. The bot respects user privacy and will stop sending notifications and watching you if blocked.
 </details>
 
 For additional help, check the [GitHub issues](https://github.com/oestradiol/bsky-post-notifs-bot/issues) or make a new issue for support.
